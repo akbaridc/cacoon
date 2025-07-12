@@ -12,7 +12,7 @@
 
 1. **Clone the repository and navigate to project directory**
    ```bash
-   cd cacoon-dev
+   cd cacoon
    ```
 
 2. **Install PHP dependencies**
