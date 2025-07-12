@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "========================================"
 echo "Cacoon"
 echo "========================================"
@@ -21,10 +19,18 @@ if [ $? -ne 0 ]; then
 fi
 
 echo
-echo "Building frontend assets..."
+echo "Building..."
 npm run build
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to build frontend assets"
+    echo "Error: Failed to build"
+    exit 1
+fi
+
+echo
+echo "Copying .env.example to .env..."
+cp .env.example .env
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to copy .env.example to .env"
     exit 1
 fi
 
@@ -42,7 +48,7 @@ echo "Setup completed successfully!"
 echo "========================================"
 echo
 echo "Next steps:"
-echo "1. Create a PostgreSQL database named 'cacoon'"
+echo "1. Create a PostgreSQL database"
 echo "2. Update the .env file with your database credentials"
 echo "3. Run 'php artisan migrate' to create database tables"
 echo "4. Run 'php artisan db:seed' to seed the database"
