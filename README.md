@@ -10,6 +10,13 @@
 
 ## Installation
 
+   ```bash
+    bash setup.sh
+   ```
+   
+   or
+
+
 1. **Clone the repository and navigate to project directory**
    ```bash
    cd cacoon
@@ -40,10 +47,12 @@
    - Configure mail settings for OTP:
      ```
      MAIL_MAILER=smtp
-     MAIL_HOST=sandbox.smtp.mailtrap.io
-     MAIL_PORT=2525
-     MAIL_USERNAME=your_mailtrap_username
-     MAIL_PASSWORD=your_mailtrap_password
+     MAIL_HOST=smtp.gmail.com
+     MAIL_PORT=587
+     MAIL_USERNAME=your_email
+     MAIL_PASSWORD=your_password
+     MAIL_ENCRYPTION=tls
+     MAIL_FROM_ADDRESS=name_alias
      ```
 
 5. **Create database**
@@ -61,7 +70,7 @@
    php artisan db:seed
    ```
 
-8. **Generate application key** (if not already generated)
+8. **Generate application key**
    ```bash
    php artisan key:generate
    ```
