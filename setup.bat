@@ -22,10 +22,19 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo Building frontend assets...
+echo Building...
 call npm run build
 if %errorlevel% neq 0 (
-    echo Error: Failed to build frontend assets
+    echo Error: Failed to build
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo Copying .env.example to .env...
+call cp .env.example .env
+if %errorlevel% neq 0 (
+    echo Error: Failed to copy .env.example to .env
     pause
     exit /b %errorlevel%
 )
@@ -45,7 +54,7 @@ echo Setup completed successfully!
 echo ========================================
 echo.
 echo Next steps:
-echo 1. Create a PostgreSQL database named 'laravel_otp_api'
+echo 1. Create a PostgreSQL database
 echo 2. Update the .env file with your database credentials
 echo 3. Run 'php artisan migrate' to create database tables
 echo 4. Run 'php artisan db:seed' to seed the database
