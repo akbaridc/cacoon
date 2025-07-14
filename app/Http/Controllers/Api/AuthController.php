@@ -96,6 +96,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_in' => 86400, // 24 hours in seconds
             'expires_at' => $expiresAt->toIso8601String(),
+            'user' => $user->load('employee')
         ]);
     }
 
