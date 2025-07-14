@@ -13,29 +13,28 @@ class SplashPageView extends GetView<SplashPageController> {
     // You can add your splash screen logic here, such as loading assets or navigating to another page after a delay.
     // For now, this is a simple placeholder view.
     // You might want to use a Future.delayed to navigate to another page after a certain time.
-    Future.delayed(const Duration(seconds: 2), () {
-      Get.offAllNamed(Routes.LOGIN);
-    });
+    controller.onInit();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: backgroundColor1,
-      body: SafeArea(child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/logo.png',
-              width: 100,
-              height: 100,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Welcome to Cacoon Mobile',
-              style: primaryTextStyle.copyWith(fontSize: 24, fontWeight: semiBold),
-            ),
-          ],
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/logo.png', width: 100, height: 100),
+              const SizedBox(height: 20),
+              Text(
+                'Welcome to Cacoon Mobile',
+                style: primaryTextStyle.copyWith(
+                  fontSize: 24,
+                  fontWeight: semiBold,
+                ),
+              ),
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }

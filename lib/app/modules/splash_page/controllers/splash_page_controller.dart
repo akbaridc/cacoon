@@ -1,3 +1,5 @@
+import 'package:cacoon_mobile/app/routes/app_pages.dart';
+import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:get/get.dart';
 
 class SplashPageController extends GetxController {
@@ -6,9 +8,22 @@ class SplashPageController extends GetxController {
   final count = 0.obs;
   @override
   void onInit() {
-    super.onInit();
-  }
 
+    super.onInit();
+    _navigateNext();
+  }
+  _navigateNext() async {
+    print("Navigating to next screen...");
+    final isSignedIn = await SessionHelper.checkIsLogin();
+
+    await Future.delayed(Duration(seconds: 3));
+
+    if (isSignedIn) {
+      Get.offAllNamed(Routes.NAVIGATION_BAR);
+    } else {
+      Get.offAllNamed(Routes.LOGIN);
+    }
+  }
   @override
   void onReady() {
     super.onReady();

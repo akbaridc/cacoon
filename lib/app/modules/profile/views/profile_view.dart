@@ -49,35 +49,29 @@ class ProfileView extends GetView<ProfileController> {
   Widget _buildInfoRow(List<Map<String, String>> items) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: items.map((item) {
-        return _buildInfoBox(item["name"] ?? "", item["value"] ?? "");
-      }).toList()
-        ..addAll(
-          List.generate(3 - items.length, (_) => const SizedBox(width: 100)), // Spacer for alignment
-        ),
+      children:
+          items.map((item) {
+            return _buildInfoBox(item["name"] ?? "", item["value"] ?? "");
+          }).toList()..addAll(
+            List.generate(
+              3 - items.length,
+              (_) => const SizedBox(width: 100),
+            ), // Spacer for alignment
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    controller.onInit(); // Ensure controller is initialized
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        title: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
           child: Row(
-            children: [
-              Text(
-                "CACOON",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.5,
-                ),
-              ),
-            ],
+            children: [Image.asset('assets/logo.png', width: 100, height: 100)],
           ),
         ),
         backgroundColor: const Color(0xFF0E3A34),
@@ -96,7 +90,8 @@ class ProfileView extends GetView<ProfileController> {
                       FutureBuilder<ImageProvider>(
                         future: _loadImage('https://placehold.co/100x100'),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const CircleAvatar(
                               radius: 40,
                               child: CircularProgressIndicator(),
@@ -115,17 +110,23 @@ class ProfileView extends GetView<ProfileController> {
                         },
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Galih Adji Pradana",
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              controller.name,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            Text("2135839", style: TextStyle(color: greyText)),
                             Text(
-                              "Pl. Shift Pengawasan Bongkar Muat Domestik",
+                              controller.nik,
+                              style: TextStyle(color: greyText),
+                            ),
+                            Text(
+                              controller.position ?? "-",
                               style: TextStyle(color: Colors.red, fontSize: 12),
                             ),
                           ],
@@ -143,10 +144,19 @@ class ProfileView extends GetView<ProfileController> {
                       SizedBox(height: 8),
                       Text(
                         "Total Kapal",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       SizedBox(height: 4),
-                      Text("2024", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                      Text(
+                        "2024",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       Icon(Icons.arrow_drop_down),
                     ],
                   ),
@@ -163,10 +173,12 @@ class ProfileView extends GetView<ProfileController> {
                         i,
                         i + 3 > kapalList.length ? kapalList.length : i + 3,
                       );
-                      rows.add(Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildInfoRow(slice),
-                      ));
+                      rows.add(
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildInfoRow(slice),
+                        ),
+                      );
                     }
 
                     return Column(children: rows);
@@ -184,7 +196,10 @@ class ProfileView extends GetView<ProfileController> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Center(
-                        child: Text("Ganti Password", style: TextStyle(color: Colors.blue)),
+                        child: Text(
+                          "Ganti Password",
+                          style: TextStyle(color: Colors.blue),
+                        ),
                       ),
                     ),
                   ),
@@ -200,9 +215,7 @@ class ProfileView extends GetView<ProfileController> {
                         color: Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Center(
-                        child: Text("Sign Out"),
-                      ),
+                      child: const Center(child: Text("Sign Out")),
                     ),
                   ),
                 ],

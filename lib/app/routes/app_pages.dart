@@ -16,6 +16,8 @@ import '../modules/splash_page/bindings/splash_page_binding.dart';
 import '../modules/splash_page/views/splash_page_view.dart';
 import '../modules/users/bindings/users_binding.dart';
 import '../modules/users/views/users_view.dart';
+import '../modules/verify_otp/bindings/verify_otp_binding.dart';
+import '../modules/verify_otp/views/verify_otp_view.dart';
 
 part 'app_routes.dart';
 
@@ -62,8 +64,13 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.NAVIGATION_BAR,
-      page: () =>  MainNavigationBarView(),
+      page: () => MainNavigationBarView(),
       binding: NavigationBarBinding(),
+    ),
+    GetPage(
+      name: _Paths.VERIFY_OTP,
+      page: () => const VerifyOtpView(),
+      binding: VerifyOtpBinding(),
     ),
   ];
 }

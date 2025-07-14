@@ -9,30 +9,44 @@ class SearchBoatView extends GetView<SearchBoatController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E3A34),
+       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title:  Padding(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+            Image.asset('assets/logo.png', width: 100, height: 100),
+            ],
+          ),
+        ),
+        backgroundColor: const Color(0xFF0E3A34),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: const [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage('https://placehold.co/100x100'),
-                    radius: 20,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Galih Adji Pradana',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
+            Container(
+              color: const Color.fromARGB(255, 7, 32, 29),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: const [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage('https://placehold.co/100x100'),
+                      radius: 20,
                     ),
-                  ),
-                ],
+                    SizedBox(width: 8),
+                    Text(
+                      'Galih Adji Pradana',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -62,14 +76,15 @@ class SearchBoatView extends GetView<SearchBoatController> {
                                 borderRadius: BorderRadius.circular(12),
                                 child: Image.network(
                                    'https://placehold.co/200x200',
-                                  height: 80,
+                                  height: 100,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
-                                  // errorBuilder: (_, __, ___) => Container(
-                                  //   height: 80,
-                                  //   color: Colors.grey.shade300,
-                                  //   child: const Icon(Icons.broken_image),
-                                  // ),
+                                  errorBuilder: (_, __, ___) => Container(
+                                    height: 100,
+                                    width: double.infinity,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(Icons.broken_image),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 6),

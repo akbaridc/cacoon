@@ -21,28 +21,20 @@ class HomeView extends GetView<HomeController> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              child: Row(
-                children: const [
-                  Text(
-                    "CACOON",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Image.asset('assets/logo.png', width: 100, height: 100),
+            ],
+          ),
+        ),
         backgroundColor: const Color(0xFF0E3A34),
       ),
       backgroundColor: const Color(0xFF0E3A34),
       body: SafeArea(
         child: ListView(
           children: [
-                      // Horizontal profile list
+            // Horizontal profile list
             SizedBox(
               height: 90,
               child: ListView.builder(
@@ -150,9 +142,7 @@ class HomeView extends GetView<HomeController> {
                 height: 200,
                 width: double.infinity,
                 color: Colors.grey.shade300,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                child: const Center(child: CircularProgressIndicator()),
               );
             } else if (snapshot.hasError) {
               return Container(
@@ -166,10 +156,7 @@ class HomeView extends GetView<HomeController> {
             } else {
               return SizedBox(
                 width: double.infinity,
-                child: Image(
-                  image: snapshot.data!,
-                  fit: BoxFit.cover,
-                ),
+                child: Image(image: snapshot.data!, fit: BoxFit.cover),
               );
             }
           },
