@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 double defaultMargin = 30.0;
 
-Color primaryColor = const Color(0xFF6C5ECF);
+Color primaryColor = const Color(0xFF0E3A34);
 Color secondaryColor = const Color(0xFF38ABBE);
 Color alertColor = const Color(0xFFED6363);
 Color priceColor = const Color(0xFF2C96F1);

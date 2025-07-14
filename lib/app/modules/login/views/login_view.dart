@@ -1,3 +1,4 @@
+import 'package:cacoon_mobile/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
@@ -8,7 +9,7 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E3A34),
+      backgroundColor: primaryColor,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -17,11 +18,7 @@ class LoginView extends GetView<LoginController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 48,
-                    backgroundColor: Colors.tealAccent,
-                    child: Icon(Icons.person, size: 50, color: Colors.black87),
-                  ),
+                     Image.asset('assets/logo.png', width: 200),
                   const SizedBox(height: 20),
                   Text(
                     'Selamat Datang!',
@@ -33,7 +30,7 @@ class LoginView extends GetView<LoginController> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Silakan login untuk melanjutkan',
+                    'Silahkan login untuk melanjutkan',
                     style: TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 30),

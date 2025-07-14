@@ -22,10 +22,10 @@ class SplashPageView extends GetView<SplashPageController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/logo.png', width: 100, height: 100),
-              const SizedBox(height: 20),
+              Image.asset('assets/logo.png', width: 200),
+              const SizedBox(height: 10),
               Text(
-                'Welcome to Cacoon Mobile',
+                'Welcome to Cacoon',
                 style: primaryTextStyle.copyWith(
                   fontSize: 24,
                   fontWeight: semiBold,
