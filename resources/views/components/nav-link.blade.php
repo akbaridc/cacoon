@@ -1,11 +1,21 @@
-@props(['active'])
+@props(['active', 'title' => 'Menu', 'icon' => '', 'typeNav' => 'parent'])
 
-@php
-$classes = ($active ?? false)
-            ? 'inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out'
-            : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out';
-@endphp
+{{-- <li class="menu-item {{ $typeNav != 'parent' && $active ? 'menuitem-active' : '' }}">
+    <a {{ $attributes->merge(['class' => "menu-link " . ($active ? 'active' : '')]) }}>
+        @if ($typeNav == 'parent')
+            <span class="menu-icon"><i data-feather="{{ $icon }}"></i></span>
+        @else
+            <span class="menu-text"> {{ $title }} </span>
+        @endif
+    </a>
+</li> --}}
 
-<a {{ $attributes->merge(['class' => $classes]) }}>
-    {{ $slot }}
-</a>
+<li class="nav-item">
+    <a {{ $attributes->merge(['class' => "nav-link " . ($active ? 'active' : '')]) }}>
+        @if ($icon)
+            <i class="{{ $icon }} menu-icon"></i>
+        @endif
+        <span>{{ $title }}</span>
+    </a>
+</li>
+
