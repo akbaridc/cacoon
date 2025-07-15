@@ -84,17 +84,17 @@
 
 After running seeders, you can use these test accounts:
 
-### Admin User
-- Email: admin@gmail.com
+### Super admin
+- Email: superadmin@gmail.com
 - NIK: 1234567890
-- Password: password (for web login)
+- Password: password
 
-### Regular User
+### User
 - Email: akbar@gmail.com
 - NIK: 0987654321
-- Password: password (for web login)
+- Password: password
 
-### Inactive User (for testing)
+### Inactive User
 - Email: inactive@gmail.com
 - NIK: 1111111111
 - This account will be rejected during login

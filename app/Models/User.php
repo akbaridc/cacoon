@@ -78,4 +78,15 @@ class User extends Authenticatable
 
         return $this->token_expires_at->isFuture();
     }
+
+    public function getRoleStringAttribute()
+    {
+        return $this->getRoleNames()->implode('');
+    }
+
+    public function getRoleNameAttribute()
+    {
+        return $this->roles->first()->name ?? null;
+    }
+
 }
