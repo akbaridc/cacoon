@@ -1,4 +1,5 @@
-name: Cacoon
+name: Cacoon Deployment
+description: Deploy Cacoon application to production server using SSH and Rsync.
 
 on:
   push:
