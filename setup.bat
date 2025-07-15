@@ -31,10 +31,10 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo Copying .env.example to .env...
-call cp .env.example .env
+echo Copying env/.env-dev.copy to .env...
+call cp env/.env-dev.copy .env
 if %errorlevel% neq 0 (
-    echo Error: Failed to copy .env.example to .env
+    echo Error: Failed to copy env/.env-dev.copy to .env
     pause
     exit /b %errorlevel%
 )
@@ -44,6 +44,15 @@ echo Generating application key...
 call php artisan key:generate
 if %errorlevel% neq 0 (
     echo Error: Failed to generate application key
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo Linked storage...
+call php artisan storage:link
+if %errorlevel% neq 0 (
+    echo Error: Failed to link storage
     pause
     exit /b %errorlevel%
 )
