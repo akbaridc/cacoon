@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\DataTables\Master\UsersDataTable;
 
-class UsersConstroller extends Controller
+class UsersController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(UsersDataTable $dataTable)
     {
-        //
+        return $dataTable->render('pages.master.users.index');
     }
 
     /**

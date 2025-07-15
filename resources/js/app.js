@@ -7,7 +7,7 @@ import { showConfirmDialog } from './config/dialog';
 
 import { loginForm } from './authentication';
 import { deleteDatatable } from './config/delete-datatable';
-import { rolePermission } from './pages/settings/role-permission';
+import { rolePermission } from './pages/settings/role-permission/index';
 
 // Alpine.plugin(collapse)
 Alpine.data("loginForm", loginForm);

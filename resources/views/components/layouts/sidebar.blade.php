@@ -5,7 +5,7 @@
 
                 <x-nav-link-label title="Main Menu" class="pt-0 mt-0" />
                 <x-nav-link :href="route('dashboard')" typeNav="sub" title="Dashboard" icon="iconoir-home-simple" :active="collapseSidebar(['dashbaord'])"  />
-                <x-nav-link-collapse title="Master Data" icon="iconoir-database">
+                <x-nav-link-collapse title="Master Data" icon="iconoir-database" :active="collapseSidebar(['users'])">
                     <x-nav-link :href="route('users.index')" typeNav="sub" title="Users" :active="collapseSidebar(['users'])" />
                 </x-nav-link-collapse>
 
