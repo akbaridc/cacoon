@@ -1,7 +1,7 @@
-@props(['title', 'icon' => null])
+@props(['title', 'icon' => null, 'active' => false])
 
-<li class="nav-item" x-data="{ open: false }">
-    <a href="#" class="nav-link flex items-center justify-between" @click.prevent="open = !open">
+<li class="nav-item" x-data="{ open: '{{ $active ? true : false }}' }">
+    <a href="#" class="nav-link flex items-center justify-between" x-bind:class="{ 'active': open }" @click.prevent="open = !open">
         <div class="flex items-center">
             <i class="{{ $icon }} menu-icon"></i>
             <span>{{ $title }}</span>
@@ -17,18 +17,3 @@
         </ul>
     </div>
 </li>
-
-{{-- <li class="nav-item">
-    <a class="nav-link" href="#sidebarApplications" data-bs-toggle="collapse" role="button"
-        aria-expanded="false" aria-controls="sidebarApplications">
-        <i class="iconoir-view-grid menu-icon"></i>
-        <span>Master</span>
-    </a>
-    <div class="collapse" id="sidebarApplications">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="apps-chat.html">Chat</a>
-            </li>
-        </ul>
-    </div>
-</li> --}}

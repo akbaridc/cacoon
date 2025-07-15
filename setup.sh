@@ -27,10 +27,10 @@ if [ $? -ne 0 ]; then
 fi
 
 echo
-echo "Copying .env.example to .env..."
-cp .env.example .env
+echo "Copying env/.env-dev.copy to .env..."
+cp env/.env-dev.copy .env
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to copy .env.example to .env"
+    echo "Error: Failed to copy env/.env-dev.copy to .env"
     exit 1
 fi
 
@@ -39,6 +39,14 @@ echo "Generating application key..."
 php artisan key:generate
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate application key"
+    exit 1
+fi
+
+echo
+echo "Linked storage..."
+php artisan storage:link
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to link storage"
     exit 1
 fi
 
