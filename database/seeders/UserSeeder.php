@@ -18,13 +18,13 @@ class UserSeeder extends Seeder
 
         $users = [
             [
-                'name' => 'Admin User',
-                'email' => 'admin@gmail.com',
+                'name' => 'Super Admin',
+                'email' => 'superadmin@gmail.com',
                 'password' => Hash::make('password'),
                 'nik' => '1234567890',
                 'is_active' => true,
                 'email_verified_at' => now(),
-                'role' => 'admin',
+                'role' => 'super admin',
             ],
             [
                 'name' => 'Akbar Imawan Dwi Cahya',
@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            $user = User::create([
+            $data = User::create([
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'password' => $user['password'],
@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
                 'emp_type' => 'emp',
             ]);
 
-            $user->assignRole($user['role']);
+            $data->assignRole($user['role']);
         }
     }
 }
