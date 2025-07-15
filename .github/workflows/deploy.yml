@@ -17,7 +17,7 @@ jobs:
           echo exit code $?
           git tag --list
           git describe --tags --always > version
-          cp env/.env-copy.copy .env
+          cp env/.env-dev.copy .env
 
       - uses: MilesChou/composer-action/8.2@master
         with:
