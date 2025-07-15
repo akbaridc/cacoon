@@ -2,7 +2,7 @@ name: Cacoon Deployment
 description: Deploy Cacoon application to production server using SSH and Rsync.
 
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
 jobs:
@@ -23,12 +23,12 @@ jobs:
         with:
           args: install --ignore-platform-reqs
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: |
-          npm install
-          npm run build
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      # - run: |
+      #     npm install
+      #     npm run build
 
       - name: Laravel Rsync Deploy
         uses: SHSharkar/Laravel-Rsync-Deploy@master
@@ -48,10 +48,8 @@ jobs:
           port: ${{ secrets.REMOTE_HOST_PORT }}
           script: |
             cd ${{ secrets.TARGET_DIRECTORY }}
-            ls database/migrations/
+            npm install
+            npm run build
             php8.2 artisan key:generate --ansi
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan optimize:clear
+            php8.2 artisan view:cache
+            php8.2 artisan cache:clear
