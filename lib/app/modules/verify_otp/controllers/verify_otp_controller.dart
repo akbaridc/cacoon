@@ -27,10 +27,41 @@ class VerifyOtpController extends GetxController {
     });
   }
 
-  void resendOtp() {
+  Future<void> resendOtp() async {
     print("Resend OTP triggered!");
     startTimer();
-    // TODO: Call API to resend OTP
+    try {
+      var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.login}';
+      var headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+      var body = jsonEncode({'email_or_nik': email});
+
+      var response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: body,
+      );
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+        ScaffoldMessenger.of(
+          Get.context!,
+        ).showSnackBar(SnackBar(content: Text("${data['message']}, $email")));
+        // Arahkan ke halaman verifikasi OTP
+     
+      } else {
+        ScaffoldMessenger.of(Get.context!).showSnackBar(
+          SnackBar(content: Text("Login gagal, silakan coba lagi")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
+      );
+      return;
+    }
   }
 
   Future<void> verifyOtp() async {

@@ -9,73 +9,83 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                     Image.asset('assets/logo.png', width: 200),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Selamat Datang!',
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 40),
+                  Center(
+                    child: Text(
+                      'Selamat Datang!',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Silahkan login untuk melanjutkan',
-                    style: TextStyle(color: Colors.white70),
+                  Center(
+                    child: Text(
+                      'Silakan login untuk melanjutkan',
+                      style: TextStyle(color: Colors.black54, fontSize: 14),
+                    ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
 
-                  // Email
+                  Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
                   _buildInputField(
-                    label: "Email",
+                    hint: "Masukkan email Anda",
                     controller: controller.emailController,
                     isPassword: false,
                   ),
                   const SizedBox(height: 20),
 
-                  // Password
+                  Text(
+                    'Password',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
                   Obx(
                     () => _buildInputField(
-                      label: "Password",
+                      hint: "Masukkan password Anda",
                       controller: controller.passwordController,
                       isPassword: true,
                       obscureText: controller.isPasswordHidden.value,
                       toggleVisibility: controller.togglePasswordVisibility,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: controller.login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.tealAccent[700],
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 5,
-                      ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  Obx(
+                    () => controller.isLoading.value
+                        ? Center(child: CircularProgressIndicator(color: Colors.tealAccent))
+                        : SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: controller.login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Login',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -87,42 +97,42 @@ class LoginView extends GetView<LoginController> {
   }
 
   Widget _buildInputField({
-    required String label,
+    required String hint,
     required TextEditingController controller,
     bool isPassword = false,
     bool obscureText = false,
     VoidCallback? toggleVisibility,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white12,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: Colors.white),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.white70,
-                  ),
-                  onPressed: toggleVisibility,
-                )
-              : null,
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.teal),
+        ),
+        prefixIcon: isPassword
+            ? const Icon(Icons.lock_outline)
+            : const Icon(Icons.email_outlined),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: toggleVisibility,
+              )
+            : null,
       ),
     );
   }

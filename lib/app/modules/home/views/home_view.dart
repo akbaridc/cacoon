@@ -30,13 +30,14 @@ class HomeView extends GetView<HomeController> {
         ),
         backgroundColor: const Color(0xFF0E3A34),
       ),
-      backgroundColor: const Color(0xFF0E3A34),
       body: SafeArea(
         child: ListView(
           children: [
             // Horizontal profile list
-            SizedBox(
+            Container(
+              color: const Color(0xFF0E3A34),
               height: 90,
+              
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: controller.profiles.length,
@@ -82,9 +83,6 @@ class HomeView extends GetView<HomeController> {
                 },
               ),
             ),
-
-            const SizedBox(height: 12),
-
             // Posts
             ...controller.profiles.map((e) {
               print(e['name']);
@@ -97,98 +95,102 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildPostItem(String? name) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Nama user
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              FutureBuilder<ImageProvider>(
-                future: _loadImage('https://placehold.co/100x100'),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircleAvatar(
-                      radius: 16,
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const CircleAvatar(
-                      radius: 16,
-                      child: Icon(Icons.person, size: 16),
-                    );
-                  } else {
-                    return CircleAvatar(
-                      radius: 16,
-                      backgroundImage: snapshot.data,
-                    );
-                  }
-                },
-              ),
-              SizedBox(width: 8),
-              Text(name ?? '', style: TextStyle(color: Colors.white)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Gambar dummy
-        FutureBuilder<ImageProvider>(
-          future: _loadImage('https://picsum.photos/seed/picsum/200/300'),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container(
-                height: 200,
-                width: double.infinity,
-                color: Colors.grey.shade300,
-                child: const Center(child: CircularProgressIndicator()),
-              );
-            } else if (snapshot.hasError) {
-              return Container(
-                height: 200,
-                width: double.infinity,
-                color: Colors.grey.shade300,
-                child: const Center(
-                  child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+    return Container(
+      color: const Color.fromARGB(255, 7, 32, 29),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 8),
+          // Nama user
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                FutureBuilder<ImageProvider>(
+                  future: _loadImage('https://placehold.co/100x100'),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircleAvatar(
+                        radius: 16,
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return const CircleAvatar(
+                        radius: 16,
+                        child: Icon(Icons.person, size: 16),
+                      );
+                    } else {
+                      return CircleAvatar(
+                        radius: 16,
+                        backgroundImage: snapshot.data,
+                      );
+                    }
+                  },
                 ),
-              );
-            } else {
-              return SizedBox(
-                width: double.infinity,
-                child: Image(image: snapshot.data!, fit: BoxFit.cover),
-              );
-            }
-          },
-        ),
-
-        const SizedBox(height: 8),
-
-        // Lokasi dan waktu
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: const [
-              Icon(Icons.location_on, color: Colors.white54, size: 16),
-              SizedBox(width: 4),
-              Text(
-                "Kecamatan Gresik, Jawa Timur, Indonesia",
-                style: TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
+                SizedBox(width: 8),
+                Text(name ?? '', style: TextStyle(color: Colors.white)),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: const Text(
-            "08/07/2024 10:42 AM GMT+7",
-            style: TextStyle(color: Colors.white38, fontSize: 11),
+          const SizedBox(height: 8),
+      
+          // Gambar dummy
+          FutureBuilder<ImageProvider>(
+            future: _loadImage('https://picsum.photos/seed/picsum/200/300'),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container(
+                  height: 200,
+                  width: double.infinity,
+                  color: Colors.grey.shade300,
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              } else if (snapshot.hasError) {
+                return Container(
+                  height: 200,
+                  width: double.infinity,
+                  color: Colors.grey.shade300,
+                  child: const Center(
+                    child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                  ),
+                );
+              } else {
+                return SizedBox(
+                  width: double.infinity,
+                  child: Image(image: snapshot.data!, fit: BoxFit.cover),
+                );
+              }
+            },
           ),
-        ),
-
-        const SizedBox(height: 16),
-      ],
+      
+          const SizedBox(height: 8),
+      
+          // Lokasi dan waktu
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: const [
+                Icon(Icons.location_on, color: Colors.white54, size: 16),
+                SizedBox(width: 4),
+                Text(
+                  "Kecamatan Gresik, Jawa Timur, Indonesia",
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: const Text(
+              "08/07/2024 10:42 AM GMT+7",
+              style: TextStyle(color: Colors.white38, fontSize: 11),
+            ),
+          ),
+      
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

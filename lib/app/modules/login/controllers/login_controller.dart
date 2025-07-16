@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
+var isLoading = false.obs;
   final isPasswordHidden = true.obs;
 
   void togglePasswordVisibility() {
@@ -18,13 +18,17 @@ class LoginController extends GetxController {
   }
 
   Future<void> login() async {
+    isLoading.value = true;
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
+
+    print('Login attempt with email: $email and password: $password');
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(Get.context!).showSnackBar(
         SnackBar(content: Text("Email dan password tidak boleh kosong")),
       );
+      isLoading.value = false;
       return;
     }
 
@@ -48,16 +52,19 @@ class LoginController extends GetxController {
           Get.context!,
         ).showSnackBar(SnackBar(content: Text("${data['message']}, $email")));
         // Arahkan ke halaman verifikasi OTP
+        isLoading.value = false;
         Get.toNamed(Routes.VERIFY_OTP, arguments: {'email': email});
       } else {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(content: Text("Login gagal, silakan coba lagi")),
         );
+        isLoading.value = false;
       }
     } catch (e) {
       ScaffoldMessenger.of(Get.context!).showSnackBar(
         SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
       );
+      isLoading.value = false;
       return;
     }
   }
