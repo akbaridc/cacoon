@@ -86,5 +86,4 @@
 
 @push('scripts')
     {!! $dataTable->scripts() !!}
-    @vite(['resources/js/pages/settings/role-permission/index.js'])
 @endpush

@@ -1,7 +1,4 @@
 @section('title', 'Login')
-@push('scripts')
-    @vite(['resources/js/authentication/index.js'])
-@endpush
 
 <x-guest-layout>
     <div class="card-body">
