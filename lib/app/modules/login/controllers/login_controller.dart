@@ -8,8 +8,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class LoginController extends GetxController {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final emailController = TextEditingController(text: 'ryan@gmail.com');
+  final passwordController = TextEditingController(text: '12345678');
 var isLoading = false.obs;
   final isPasswordHidden = true.obs;
 

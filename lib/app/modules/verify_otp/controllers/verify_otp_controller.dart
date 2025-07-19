@@ -102,6 +102,8 @@ class VerifyOtpController extends GetxController {
           data['user']['employee']['department_name'] ?? '',
           data['user']['employee']['position_title'] ?? '',
         );
+
+        print(await SessionHelper.getAccessToken());
         ScaffoldMessenger.of(
           Get.context!,
         ).showSnackBar(SnackBar(content: Text("Token berhasil diverifikasi!")));

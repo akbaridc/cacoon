@@ -19,178 +19,153 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Image.asset('assets/logo.png', width: 100, height: 100),
-            ],
-          ),
+        title: const Text(
+          'Social',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF0E3A34),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: const [
+          Icon(Icons.add, color: Colors.black),
+          SizedBox(width: 16),
+        ],
       ),
-      body: SafeArea(
-        child: ListView(
-          children: [
-            // Horizontal profile list
-            Container(
-              color: const Color(0xFF0E3A34),
-              height: 90,
-              
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: controller.profiles.length,
-                itemBuilder: (context, index) {
-                  final profile = controller.profiles[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        FutureBuilder<ImageProvider>(
-                          future: _loadImage('https://placehold.co/100x100'),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircleAvatar(
-                                radius: 30,
-                                child: CircularProgressIndicator(),
-                              );
-                            } else if (snapshot.hasError) {
-                              return const CircleAvatar(
-                                radius: 30,
-                                child: Icon(Icons.person, size: 30),
-                              );
-                            } else {
-                              return CircleAvatar(
-                                radius: 30,
-                                backgroundImage: snapshot.data,
-                              );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          profile['name'] ?? '',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Posts
-            ...controller.profiles.map((e) {
-              print(e['name']);
-              return _buildPostItem(e['name']);
-            }).toList(),
-          ],
-        ),
+      body: ListView(
+        children: [
+          _buildStories(),
+          const Divider(),
+          ...controller.posts.map((post) => _buildPostItem(post)).toList(),
+        ],
       ),
     );
   }
 
-  Widget _buildPostItem(String? name) {
-    return Container(
-      color: const Color.fromARGB(255, 7, 32, 29),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 8),
-          // Nama user
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                FutureBuilder<ImageProvider>(
-                  future: _loadImage('https://placehold.co/100x100'),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircleAvatar(
-                        radius: 16,
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return const CircleAvatar(
-                        radius: 16,
-                        child: Icon(Icons.person, size: 16),
-                      );
-                    } else {
-                      return CircleAvatar(
-                        radius: 16,
-                        backgroundImage: snapshot.data,
-                      );
-                    }
-                  },
-                ),
-                SizedBox(width: 8),
-                Text(name ?? '', style: TextStyle(color: Colors.white)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-      
-          // Gambar dummy
-          FutureBuilder<ImageProvider>(
-            future: _loadImage('https://picsum.photos/seed/picsum/200/300'),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                  height: 200,
-                  width: double.infinity,
-                  color: Colors.grey.shade300,
-                  child: const Center(child: CircularProgressIndicator()),
-                );
-              } else if (snapshot.hasError) {
-                return Container(
-                  height: 200,
-                  width: double.infinity,
-                  color: Colors.grey.shade300,
-                  child: const Center(
-                    child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                  ),
-                );
-              } else {
-                return SizedBox(
-                  width: double.infinity,
-                  child: Image(image: snapshot.data!, fit: BoxFit.cover),
-                );
-              }
-            },
-          ),
-      
-          const SizedBox(height: 8),
-      
-          // Lokasi dan waktu
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: const [
-                Icon(Icons.location_on, color: Colors.white54, size: 16),
-                SizedBox(width: 4),
-                Text(
-                  "Kecamatan Gresik, Jawa Timur, Indonesia",
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: const Text(
-              "08/07/2024 10:42 AM GMT+7",
-              style: TextStyle(color: Colors.white38, fontSize: 11),
-            ),
-          ),
-      
-          const SizedBox(height: 16),
-        ],
+  Widget _buildStories() {
+    return SizedBox(
+      height: 100,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.stories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final story = controller.stories[index];
+          return Column(
+            children: [
+              FutureBuilder<ImageProvider>(
+                future: _loadImage(story['profileImage'] ?? ''),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircleAvatar(
+                      radius: 30,
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const CircleAvatar(
+                      radius: 30,
+                      child: Icon(Icons.person, size: 30),
+                    );
+                  } else {
+                    return CircleAvatar(
+                      radius: 30,
+                      backgroundImage: snapshot.data,
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 4),
+              Text(story['name'] ?? "", style: const TextStyle(fontSize: 12)),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildPostItem(Map<String, dynamic> post) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(post['profileImage']),
+          ),
+          title: Text(
+            post['name'],
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(post['time']),
+          trailing: const Icon(Icons.more_horiz),
+        ),
+        FutureBuilder<ImageProvider>(
+          future: _loadImage('https://picsum.photos/seed/picsum/200/300'),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                height: 200,
+                width: double.infinity,
+                color: Colors.grey.shade300,
+                child: const Center(child: CircularProgressIndicator()),
+              );
+            } else if (snapshot.hasError) {
+              return Container(
+                height: 200,
+                width: double.infinity,
+                color: Colors.grey.shade300,
+                child: const Center(
+                  child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                ),
+              );
+            } else {
+              return SizedBox(
+                width: double.infinity,
+                child: Image(image: snapshot.data!, fit: BoxFit.cover),
+              );
+            }
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: const [
+              Icon(Icons.favorite_border),
+              SizedBox(width: 16),
+              Icon(Icons.comment),
+              SizedBox(width: 16),
+              Icon(Icons.share),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Text(
+            "${post['likes']} likes",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "${post['name']} ",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: post['caption']),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Text(
+            "View all ${post['comments']} comments",
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 }

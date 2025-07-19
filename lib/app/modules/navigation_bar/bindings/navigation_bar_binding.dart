@@ -10,13 +10,13 @@ import '../controllers/navigation_bar_controller.dart';
 class NavigationBarBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<NavigationBarController>(() => NavigationBarController());
+    Get.put<NavigationBarController>(NavigationBarController());
 
     // ⬇ Tambahkan semua controller tab yang dipanggil langsung
-    Get.lazyPut<HomeController>(() => HomeController());
-    Get.lazyPut<SearchBoatController>(() => SearchBoatController());
-    Get.lazyPut<CreateController>(() => CreateController());
-    Get.lazyPut<UsersController>(() => UsersController());
-    Get.lazyPut<ProfileController>(() => ProfileController());
+    Get.put<HomeController>(HomeController());
+    Get.put<SearchBoatController>(SearchBoatController());
+    Get.put<CreateController>(CreateController());
+    Get.put<UsersController>(UsersController());
+    Get.put<ProfileController>(ProfileController());
   }
 }

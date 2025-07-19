@@ -63,7 +63,7 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    controller.onInit(); // Ensure controller is initialized
+    // controller.onInit(); // Ensure controller is initialized
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
