@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cacoon_mobile/app/routes/app_pages.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
-import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;

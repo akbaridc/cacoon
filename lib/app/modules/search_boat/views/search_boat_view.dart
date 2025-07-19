@@ -82,8 +82,7 @@ class SearchBoatView extends GetView<SearchBoatController> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
-                                    boat.imageUrl ??
-                                        'https://placehold.co/200x200',
+                                    boat.imageUrl,
                                     height: 100,
                                     width: double.infinity,
                                     fit: BoxFit.cover,

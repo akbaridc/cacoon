@@ -8,4 +8,6 @@ class ApiEndpoint {
   static const verifyToken = '$prefix/verify-token';
 
   static const boat = '$prefix/boats';
+  static const palka = '$prefix/palka';
+  static const shift = '$prefix/shift';
 }
