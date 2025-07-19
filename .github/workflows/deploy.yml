@@ -5,24 +5,25 @@ on:
   workflow_dispatch:
     branches:
       - main
+
 jobs:
   laravel-ssh-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          repository: akbaridc/cacoon
+
       - run: |
-          git fetch --prune --unshallow --tags
+          git fetch --prune --unshallow --tags || true
           echo exit code $?
           git tag --list
           git describe --tags --always > version
-          cp env/.env-dev.copy .env
+          cp env/.env-prod.copy .env
 
       - uses: MilesChou/composer-action/8.2@master
         with:
           args: install --ignore-platform-reqs
 
+      # Uncomment jika butuh build JS/CSS
       # - uses: actions/setup-node@v4
       #   with:
       #     node-version: 20
@@ -39,7 +40,8 @@ jobs:
           REMOTE_HOST_PORT: ${{ secrets.REMOTE_HOST_PORT }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET_DIRECTORY: ${{ secrets.TARGET_DIRECTORY }}
-      - name: run ssh
+
+      - name: Run post-deploy commands via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
@@ -48,6 +50,7 @@ jobs:
           port: ${{ secrets.REMOTE_HOST_PORT }}
           script: |
             cd ${{ secrets.TARGET_DIRECTORY }}
+            export PATH=$PATH:/usr/bin
             npm install
             npm run build
             php8.2 artisan key:generate --ansi
