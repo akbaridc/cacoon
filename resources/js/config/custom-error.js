@@ -45,6 +45,14 @@ class CustomError {
             }
         }
     }
+
+    setCatchError(error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            toast(error.response.data.message, 'error');
+        } else {
+            this.errorCatchAxios(error.status);
+        }
+    }
 }
 
 const customError = new CustomError();

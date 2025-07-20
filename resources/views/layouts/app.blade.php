@@ -78,6 +78,19 @@
     <script src="{{ asset('templates/libs/datatables.net-select/js/dataTables.select.min.js') }}"></script>
     <script src="{{ asset('templates/js/app.js') }}"></script>
 
+    <script>
+        const darkMode = localStorage.getItem('dark_mode');
+        if (darkMode === 'true') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+
+        //ubah di tag html attribute data-bs-theme
+        const isDark = document.body.classList.contains('dark-mode');
+        document.querySelector('html').setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+    </script>
+
     @stack('scripts')
 </body>
 </html>
