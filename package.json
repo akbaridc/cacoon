@@ -19,6 +19,7 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
+        "mobius1-selectr": "^2.4.13",
         "toastify-js": "^1.12.0"
     }
 }

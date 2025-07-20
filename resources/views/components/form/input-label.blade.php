@@ -1,5 +1,5 @@
-@props(['value'])
+@props(['value', 'mandatory' => false])
 
-<label {{ $attributes->merge(['class' => 'block font-medium text-sm text-gray-700']) }}>
-    {{ $value ?? $slot }}
+<label {{ $attributes->merge(['class' => 'block font-medium text-sm']) }}>
+    {{ $value ?? $slot }} @if($mandatory) <x-form.indicator-required /> @endif
 </label>

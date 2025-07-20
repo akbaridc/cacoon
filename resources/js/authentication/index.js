@@ -1,3 +1,5 @@
+import { validateEmail } from "../validation/regex";
+
 const loginForm = () => {
     return {
         payload: {
@@ -13,7 +15,7 @@ const loginForm = () => {
                 if (rule === 'required' && !this.payload.email) {
                     errorCustom.errorInput('#email', 'Email is required', true);
                     error++;
-                } else if (rule === 'email' && this.payload.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.payload.email)) {
+                } else if (rule === 'email' && this.payload.email && !validateEmail(this.payload.email)) {
                     errorCustom.errorInput('#email', 'Invalid email format', true);
                     error++;
                 }
@@ -38,11 +40,7 @@ const loginForm = () => {
                 }, 1300);
             })
             .catch(error => {
-                if (error.response && error.response.data && error.response.data.message) {
-                    toast(error.response.data.message, 'error');
-                } else {
-                    errorCustom.errorCatchAxios(error.status);
-                }
+                errorCustom.setCatchError(error);
             });
         }
     }

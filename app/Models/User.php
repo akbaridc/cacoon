@@ -9,11 +9,14 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, HasRoles;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -88,6 +91,16 @@ class User extends Authenticatable
     public function getRoleNameAttribute()
     {
         return $this->roles->first()->name ?? null;
+    }
+
+    public function getRoleIdAttribute()
+    {
+        return $this->roles->first()->id ?? null;
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')->width(100)->height(100)->sharpen(10)->nonQueued();
     }
 
 }
