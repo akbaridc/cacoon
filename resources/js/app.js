@@ -8,11 +8,13 @@ import { showConfirmDialog } from './config/dialog';
 import { loginForm } from './authentication';
 import { deleteDatatable } from './config/delete-datatable';
 import { rolePermission } from './pages/settings/role-permission/index';
+import { userForm } from './pages/master/users/form';
 
 // Alpine.plugin(collapse)
 Alpine.data("loginForm", loginForm);
 Alpine.data("deleteDatatable", deleteDatatable);
 Alpine.data("rolePermission", rolePermission);
+Alpine.data("userForm", userForm);
 
 window.toast = setNotification;
 window.errorCustom = customError;

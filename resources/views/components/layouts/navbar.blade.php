@@ -1,4 +1,4 @@
-<nav class="topbar-custom d-flex justify-content-between" id="topbar-custom">
+<nav class="topbar-custom d-flex justify-content-between" id="topbar-custom" x-data="{ darkMode: false }">
     <ul class="topbar-item list-unstyled d-inline-flex align-items-center mb-0">
         <li>
             <button class="nav-link mobile-menu-btn nav-icon" id="togglemenu">
@@ -18,7 +18,7 @@
         <li class="dropdown topbar-item">
             <a class="nav-link dropdown-toggle arrow-none nav-icon" data-bs-toggle="dropdown" href="#" role="button"
                 aria-haspopup="false" aria-expanded="false">
-                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}" alt="" class="thumb-lg rounded-circle">
+                <img src="{{ auth()->user()->getFirstMediaUrl('avatars', 'thumb') ?: 'https://ui-avatars.com/api/?name=' . auth()->user()->name }}" alt="" class="thumb-lg rounded-circle">
             </a>
             <div class="dropdown-menu dropdown-menu-end py-0">
                 <div class="d-flex align-items-center dropdown-item py-2 bg-secondary-subtle">
@@ -44,3 +44,14 @@
         </li>
     </ul><!--end topbar-nav-->
 </nav>
+
+<script>
+
+    document.querySelector('#light-dark-mode').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('dark_mode', !isDark);
+    })
+
+</script>

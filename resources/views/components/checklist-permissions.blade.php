@@ -3,11 +3,10 @@
 @php
     $identityName = "checklist-permissions-{$name}";
     $identity = "checklist-permissions-{$name}-";
-    // $checklistList = ['Create', 'Read', 'Update', 'Delete', 'Print'];
     if($name == 'logs') {
-        $checklistList = ['Read'];
+        $checklistList = ['View'];
     } else {
-        $checklistList = ['Create', 'Read', 'Update', 'Delete', 'Print'];
+        $checklistList = ['Create', 'View', 'Update', 'Delete', 'Print'];
     }
 
     // if($name == 'tickets') array_push($checklistList, 'Self Ticket', 'Assign Ticket', 'Auto Fill Client', 'Comment', 'Upload Progress', 'Complete Ticket', 'Approve', 'Reject');
@@ -25,7 +24,7 @@
             <input @disabled($disabled) @readonly($readonly) id="{{ $identity . $index }}" name="{{ $identityName }}"
                 {{ $attributes->merge([
                     'type' => 'checkbox',
-                    'class' => 'form-check-input scale-100 item-check ' . str_replace('.', '-', $valueName) . ' ' . $identity . strtolower(str_replace(' ', '-', $item)) . ' '  . ($disabled || $readonly ? ' bg-slate-100 cursor-not-allowed' : ''),
+                    'class' => 'form-check-input scale-100 item-check mt-2 ' . str_replace('.', '-', $valueName) . ' ' . $identity . strtolower(str_replace(' ', '-', $item)) . ' '  . ($disabled || $readonly ? ' bg-slate-100 cursor-not-allowed' : ''),
                 ]) }}
                 value="{{ $valueName }}" />
             <x-form.input-label class="form-check-label" for="{{ $identity . $index  }}" value="{{ __($item) }}" />

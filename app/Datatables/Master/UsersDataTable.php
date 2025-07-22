@@ -26,7 +26,7 @@ class UsersDataTable extends DataTable
                     $btn .= '<a href="' . route('users.edit', $query->id) . '" class="btn btn-warning btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
                 }
                 if(auth()->user()->hasPermissionTo('view.users')){
-                    $btn .= '<a href="javascript:void(0)" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>';
+                    $btn .= '<a href="' . route('users.show', $query->id) . '" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>';
                 }
                 if(auth()->user()->hasPermissionTo('delete.users') && $query->id != auth()->user()->id){
                     $btn .= '<div x-data="deleteDatatable"><button class="btn btn-danger btn-sm delete-button" x-ref="buttonDelete" data-href="'. route('users.destroy', $query->id) .'" @click="onDelete()"><i class="fas fa-trash"></i></button></div>';
@@ -40,7 +40,10 @@ class UsersDataTable extends DataTable
             ->addColumn('role', function ($query) {
                 return $query->role_string;
             })
-            ->rawColumns(['action', 'is_active', 'role'])
+            ->addColumn('avatar', function ($query) {
+                return $query->getFirstMediaUrl('avatars', 'thumb') ? '<img src="' . $query->getFirstMediaUrl('avatars', 'thumb') . '" class="thumb-lg rounded-circle ">' : '<img src="' . asset('images/default-image.png') . '" class="thumb-lg rounded-circle">';
+            })
+            ->rawColumns(['action', 'is_active', 'role', 'avatar'])
             ->addIndexColumn();
     }
 
@@ -80,6 +83,7 @@ class UsersDataTable extends DataTable
     {
         return [
             Column::make("DT_RowIndex")->title("No")->orderable(false)->searchable(false),
+            Column::make("avatar")->title("Picture"),
             Column::make("nik")->title("NIK"),
             Column::make("name")->title("Name"),
             Column::make("email")->title("Email"),

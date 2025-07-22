@@ -50,8 +50,8 @@ if (!function_exists('mappingRoutePermission')) {
     function mappingRoutePermission()
     {
         return [
-            'view.users'=> ['url'=> 'users', 'controller' => UsersController::class, 'methods' => ['index', 'show']],
             'create.users' => ['url'=> 'users', 'controller' => UsersController::class, 'methods' => ['create', 'store']],
+            'view.users'=> ['url'=> 'users', 'controller' => UsersController::class, 'methods' => ['index', 'show']],
             'edit.users' => ['url'=> 'users', 'controller' => UsersController::class, 'methods' => ['edit', 'update']],
             'delete.users' => ['url'=> 'users', 'controller' => UsersController::class, 'methods' => ['destroy']],
         ];
