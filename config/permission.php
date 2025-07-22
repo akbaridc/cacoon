@@ -199,4 +199,7 @@ return [
 
         'store' => 'default',
     ],
+
+    'default_guard' => 'web',
+    'guards' => ['web'],
 ];

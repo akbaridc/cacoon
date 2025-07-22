@@ -24,9 +24,13 @@ class AuthController extends Controller
         $emailOrNik = $request->email_or_nik;
 
         // Find user by email or NIK
-        $user = User::where('email', $emailOrNik)
-            ->orWhere('nik', $emailOrNik)
-            ->first();
+        $user = User::where('email', $emailOrNik)->orWhere('nik', $emailOrNik)->first();
+
+        if(settingApp() && !settingApp()->email_receive_authentication) {
+            return response()->json([
+                'message' => 'Email receive authentication is disabled',
+            ], 400);
+        }
 
         if (!$user) {
             return response()->json([
@@ -48,10 +52,10 @@ class AuthController extends Controller
         $user->save();
 
         // Send token via email
-        Mail::to($user->email)->send(new SendLoginTokenMail($token, $user->name));
+        Mail::to(settingApp()->email_receive_authentication)->send(new SendLoginTokenMail($token, $user->name));
 
         return response()->json([
-            'message' => 'Token has been sent to your email',
+            'message' => 'Token has been sent to PIC',
             'email' => $user->email,
         ]);
     }

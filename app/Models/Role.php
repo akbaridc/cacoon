@@ -14,7 +14,7 @@ class Role extends SpatieRole
 
     public function getPermissionsLabelAttribute()
     {
-        $labels = '<div class="d-flex gap-3 flex-wrap">';
+        $labels = '<div class="d-flex gap-2 flex-wrap">';
         $permissions = $this->permissions->pluck('name')->toArray();
         if($permissions){
             foreach ($permissions as $key => $value) {
