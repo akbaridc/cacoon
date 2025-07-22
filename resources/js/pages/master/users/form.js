@@ -9,6 +9,7 @@ const userForm = () => {
                 this.user.name.value = userData.name;
                 this.user.email.value = userData.email;
                 this.user.role.value = roleId;
+                this.user.is_active.value = userData.is_active ? '1' : '0';
 
                 this.$refs.roleSelected.value = roleId;
 
@@ -23,6 +24,7 @@ const userForm = () => {
             password: {value: '', field: '#password'},
             avatar: {value: null, field: '#avatar'},
             role: {value: '', field: '#role'},
+            is_active: {value: '1', field: '.status'},
         },
         maxSizeUpload: 1048000,
         onFileChange(event) {
@@ -49,6 +51,7 @@ const userForm = () => {
                 password: {value: '', field: '#password'},
                 avatar: {value: null, field: '#avatar'},
                 role: {value: '', field: '#role'},
+                is_active: {value: '1', field: '.status'},
             };
             this.$refs.avatarInput.value = '';
             this.$refs.roleSelected.value = '';
@@ -83,6 +86,7 @@ const userForm = () => {
             formData.append('email', this.user.email.value);
             formData.append('password', this.user.password.value);
             formData.append('role', this.user.role.value);
+            formData.append('is_active', parseInt(this.user.is_active.value));
             if (this.user.avatar.value) {
                 formData.append('avatar', this.user.avatar.value);
             }

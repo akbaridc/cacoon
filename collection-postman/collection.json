@@ -73,14 +73,9 @@
                         },
                         "description": "Verify OTP token and get access token"
                     }
-                }
-            ]
-        },
-        {
-            "name": "Protected Endpoints",
-            "item": [
+                },
                 {
-                    "name": "Get Profile",
+                    "name": "Logout",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -94,13 +89,18 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{base_url}}/api/me",
+                            "raw": "{{base_url}}/api/logout",
                             "host": ["{{base_url}}"],
-                            "path": ["api", "me"]
+                            "path": ["api", "logout"]
                         },
-                        "description": "Get authenticated user profile"
+                        "description": "Logout and invalidate token"
                     }
-                },
+                }
+            ]
+        },
+        {
+            "name": "Token",
+            "item": [
                 {
                     "name": "Refresh Token",
                     "event": [
@@ -136,9 +136,14 @@
                         },
                         "description": "Refresh access token"
                     }
-                },
+                }
+            ]
+        },
+        {
+            "name": "Vessel",
+            "item": [
                 {
-                    "name": "Logout",
+                    "name": "Get Vessel",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -152,11 +157,201 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{base_url}}/api/logout",
+                            "raw": "{{base_url}}/api/vessel?page=1&limit=10",
                             "host": ["{{base_url}}"],
-                            "path": ["api", "logout"]
+                            "path": ["api", "vessel"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number for pagination"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Number of records per page"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "",
+                                    "description": "Type vessel ( Discharging, Loading )"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search query data"
+                                },
+                                {
+                                    "key": "sort_by",
+                                    "value": "",
+                                    "description": "Sort data column"
+                                },
+                                {
+                                    "key": "sort_order",
+                                    "value": "",
+                                    "description": "Sort order asc or desc"
+                                }
+                            ]
                         },
-                        "description": "Logout and invalidate token"
+                        "description": "Get list vessel"
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "if (pm.request.url.query && Array.isArray(pm.request.url.query.members)) {",
+                                    "    pm.request.url.query.members = pm.request.url.query.members.filter(q => q.value !== '');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Palka",
+            "item": [
+                {
+                    "name": "Get Palka",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/palka?page=1&limit=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "palka"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number for pagination"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Number of records per page"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search query data"
+                                },
+                                {
+                                    "key": "sort_by",
+                                    "value": "",
+                                    "description": "Sort data column"
+                                },
+                                {
+                                    "key": "sort_order",
+                                    "value": "",
+                                    "description": "Sort order asc or desc"
+                                }
+                            ]
+                        },
+                        "description": "Get list palka"
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "if (pm.request.url.query && Array.isArray(pm.request.url.query.members)) {",
+                                    "    pm.request.url.query.members = pm.request.url.query.members.filter(q => q.value !== '');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Posts",
+            "item": [
+                {
+                    "name": "Store Post",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/post",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "post"]
+                        },
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                { "key": "user", "value": "1", "type": "text" },
+                                { "key": "vessel", "value": "2", "type": "text" },
+                                { "key": "palka", "value": "3", "type": "text" },
+                                { "key": "date", "value": "2025-07-22", "type": "text" },
+                                { "key": "time", "value": "14:30:00", "type": "text" },
+                                { "key": "lat", "value": "-6.200000", "type": "text" },
+                                { "key": "long", "value": "106.816666", "type": "text" },
+                                { "key": "shift", "value": "1", "type": "text" },
+                                {
+                                    "key": "photo_vessel",
+                                    "type": "file",
+                                    "src": "/path/to/photo_vessel.jpg"
+                                },
+                                {
+                                    "key": "photo_selfie",
+                                    "type": "file",
+                                    "src": "/path/to/photo_selfie.jpg"
+                                },
+                                { "key": "note", "value": "Catatan tambahan", "type": "text" }
+                            ]
+                        },
+                        "description": "Store Post Vessel"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Account",
+            "item": [
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/me",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "me"]
+                        },
+                        "description": "Get authenticated user profile"
                     }
                 }
             ]

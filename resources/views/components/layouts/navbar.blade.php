@@ -1,4 +1,4 @@
-<nav class="topbar-custom d-flex justify-content-between" id="topbar-custom" x-data="{ darkMode: false }">
+<nav class="topbar-custom d-flex justify-content-between" id="topbar-custom">
     <ul class="topbar-item list-unstyled d-inline-flex align-items-center mb-0">
         <li>
             <button class="nav-link mobile-menu-btn nav-icon" id="togglemenu">
@@ -8,12 +8,12 @@
     </ul>
     <ul class="topbar-item list-unstyled d-inline-flex align-items-center mb-0">
 
-        <li class="topbar-item">
+        {{-- <li class="topbar-item">
             <a class="nav-link nav-icon" href="javascript:void(0);" id="light-dark-mode">
                 <i class="icofont-moon dark-mode"></i>
                 <i class="icofont-sun light-mode"></i>
             </a>
-        </li>
+        </li> --}}
 
         <li class="dropdown topbar-item">
             <a class="nav-link dropdown-toggle arrow-none nav-icon" data-bs-toggle="dropdown" href="#" role="button"
@@ -45,7 +45,7 @@
     </ul><!--end topbar-nav-->
 </nav>
 
-<script>
+{{-- <script>
 
     document.querySelector('#light-dark-mode').addEventListener('click', function(e) {
         e.preventDefault();
@@ -54,4 +54,4 @@
         localStorage.setItem('dark_mode', !isDark);
     })
 
-</script>
+</script> --}}

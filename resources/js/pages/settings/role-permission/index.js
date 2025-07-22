@@ -3,6 +3,8 @@ const rolePermission = () => {
         action: 'role-permission',
         mode: 'create',
         roleId: '',
+        showModal: false,
+        modalTitle: 'Add Role',
         payload: {
             role: '',
             permissions: [],
@@ -55,22 +57,20 @@ const rolePermission = () => {
                     .then(response => {
                         if(response?.data.status){
                             toast(response?.data.message, "success");
-                            $("#modalRoles").modal('hide');
+                            this.showModal = false;
                             this.payload.role = '';
                             this.payload.permissions = [];
                             this.roleId = '';
                             this.clearChecked();
-                            $("#datatable").DataTable().ajax.reload();
+                            setTimeout(() => window.location.reload(), 1500)
+                            // $("#datatable").DataTable().ajax.reload();
                         } else {
                             toast(response?.data.message, "error");
                         }
                     })
                     .catch(error => {
-                        if (error.response && error.response.data && error.response.data.message) {
-                            toast(error.response.data.message, 'error');
-                        } else {
-                            errorCustom.errorCatchAxios(error.status);
-                        }
+                        console.error(error)
+                        errorCustom.setCatchError(error);
                     }).finally(() => {
                         event.target.disabled = false;
                     });

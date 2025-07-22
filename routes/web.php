@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Setting\RolePermissionController;
+use App\Http\Controllers\Setting\ApplicationSettingController;
+use App\Http\Controllers\Master\VesselController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -25,6 +27,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{role}', 'show')->name('show')->middleware(['permission:view.permissions']);
         Route::put('/{role}', 'update')->name('update')->middleware(['permission:edit.permissions']);
         Route::delete('/{role}', 'destroy')->name('destroy')->middleware(['permission:delete.permissions']);
+    });
+
+    Route::controller(ApplicationSettingController::class)->prefix('setting-application')->name('setting-application.')->group(function () {
+        Route::get('/', 'index')->name('index')->middleware(['permission:view.setting-application']);
+        Route::post('/', 'update')->name('update')->middleware(['permission:edit.setting-application']);
+    });
+
+    Route::controller(VesselController::class)->prefix('vessel')->name('vessel.')->group(function () {
+        Route::get('/', 'index')->name('index')->middleware(['permission:view.vessel']);
+        Route::get('/sync', 'sync')->name('sync')->middleware(['permission:synscronize.vessel']);
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

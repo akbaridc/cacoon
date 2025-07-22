@@ -1,13 +1,13 @@
 <?php
 
-namespace App\DataTables;
+namespace App\DataTables\Master;
 
-use App\Models\Role;
+use App\Models\Palka;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class RolePermissionDataTable extends DataTable
+class PalkasDataTable extends DataTable
 {
     /**
      * Build DataTable class.
@@ -17,25 +17,24 @@ class RolePermissionDataTable extends DataTable
      */
     public function dataTable()
     {
-        $query = Role::where('id', '!=', 1);
-        // $query = Role::query();
+        $query = Palka::query();
         return datatables()
             ->eloquent($query)
             ->addColumn('action', function ($query) {
                 $btn = '<div class="d-flex gap-2">';
-                if(auth()->user()->hasPermissionTo('edit.permissions')){
-                    $btn .= '<a href="javascript:void(0)" class="btn btn-warning btn-sm" @click="showModal = true; modalTitle = \'Edit Role\'; roleId=\''. $query->id .'\'; payload.role=\''. $query->name .'\'; action=\''. route('role-permission.update', $query->id) .'\'; mode=\'edit\'"><i class="fas fa-pencil-alt"></i></a>';
+                if(auth()->user()->hasPermissionTo('edit.palka')){
+                    $btn .= '<a href="javascript:void(0)" @click="showModal = true; modalTitle = \'Edit Palka\'; palkaId=\''. $query->pk_id .'\'; payload.palka.value=\''. $query->pk_name .'\'; action=\''. route('palka.update', $query->pk_id) .'\'; mode=\'edit\'" class="btn btn-warning btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
                 }
-                if(auth()->user()->hasPermissionTo('delete.permissions')){
-                    $btn .= '<div x-data="deleteDatatable"><button class="btn btn-danger btn-sm delete-button" x-ref="buttonDelete" data-href="'. route('role-permission.destroy', $query->id) .'" @click="onDelete()"><i class="fas fa-trash"></i></button></div>';
+                if(auth()->user()->hasPermissionTo('delete.palka')){
+                    $btn .= '<div x-data="deleteDatatable"><button class="btn btn-danger btn-sm delete-button" x-ref="buttonDelete" data-href="'. route('palka.destroy', $query->pk_id) .'" @click="onDelete()"><i class="fas fa-trash"></i></button></div>';
                 }
                 $btn .= '</div>';
                 return $btn;
             })
-            ->addColumn('permissions', function ($query) {
-                return $query->permissions_label;
+            ->addColumn('pk_is_active', function ($query) {
+                return $query->pk_is_active ? '<span class="badge rounded-pill bg-primary">Active</span>' : '<span class="badge rounded-pill bg-danger">Inactive</span>';
             })
-            ->rawColumns(['action', 'permissions'])
+            ->rawColumns(['action', 'pk_is_active'])
             ->addIndexColumn();
     }
 
@@ -75,8 +74,8 @@ class RolePermissionDataTable extends DataTable
     {
         return [
             Column::make("DT_RowIndex")->title("No")->orderable(false)->searchable(false),
-            Column::make("name")->title("Role"),
-            Column::make("permissions")->title("Permissions")->orderable(false)->searchable(false),
+            Column::make("pk_name")->title("Name"),
+            Column::make("pk_is_active")->title("Status")->searchable(false)->orderable(false),
             Column::computed('action')->title('Action')->orderable(false)->searchable(false),
         ];
     }
@@ -88,6 +87,6 @@ class RolePermissionDataTable extends DataTable
      */
     protected function filename():string
     {
-        return 'RolesPermissions_' . date('YmdHis');
+        return 'Palkas_' . date('YmdHis');
     }
 }

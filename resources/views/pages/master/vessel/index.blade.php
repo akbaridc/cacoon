@@ -1,16 +1,16 @@
 @extends('layouts.app')
-@section('title', 'Users')
+@section('title', 'Vessel')
 
 @section('content')
-    <section x-data="">
+    <section x-data="vesselData()">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between" x-data="">
-                        <h5 class="card-title mb-0">Users</h5>
-                        @if (auth()->user()->hasPermissionTo('create.users'))
-                            <x-button type="button" class="bg-success" @click="window.location.href='{{ route('users.create') }}'">
-                                <i class="fas fa-plus-circle me-1"></i> Add User
+                        <h5 class="card-title mb-0">Vessel</h5>
+                        @if (auth()->user()->hasPermissionTo('synscronize.vessel'))
+                            <x-button type="button" class="bg-success" @click="onSync()">
+                                <i class="fas fa-plus-circle me-1"></i> Sync
                             </x-button>
                         @endif
                     </div>

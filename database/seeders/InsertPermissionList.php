@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 
-class insertPermissionList extends Seeder
+class InsertPermissionList extends Seeder
 {
     /**
      * Run the database seeds.
@@ -21,7 +21,21 @@ class insertPermissionList extends Seeder
             // Ambil semua permission yang sudah ada di database
             $existingPermissions = Permission::pluck('name')->toArray();
 
-            $addPermission = [];
+            $addPermission = [
+                //setting application
+                'view.setting-application',
+                'edit.setting-application',
+
+                //master vessel
+                'view.vessel',
+                'synscronize.vessel',
+
+                //master palka
+                'create.palka',
+                'view.palka',
+                'edit.palka',
+                'delete.palka',
+            ];
 
             dump('Insert permission running...');
             $count = 0;

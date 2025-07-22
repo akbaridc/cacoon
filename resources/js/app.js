@@ -3,18 +3,29 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import setNotification from './lib/toastify';
 import { customError } from './config/custom-error';
-import { showConfirmDialog } from './config/dialog';
-
-import { loginForm } from './authentication';
+import { showConfirmDialog, hideConfirmDialog } from './config/dialog';
 import { deleteDatatable } from './config/delete-datatable';
-import { rolePermission } from './pages/settings/role-permission/index';
+
+//Module Authentication
+import { loginForm } from './authentication';
+
+//Module Master
 import { userForm } from './pages/master/users/form';
+import { vesselData } from './pages/master/vessel/index';
+import { palkaData } from './pages/master/palka/index';
+
+// Module Setting
+import { rolePermission } from './pages/settings/role-permission/index';
+import { settingApplication } from './pages/settings/setting-application';
 
 // Alpine.plugin(collapse)
 Alpine.data("loginForm", loginForm);
 Alpine.data("deleteDatatable", deleteDatatable);
-Alpine.data("rolePermission", rolePermission);
 Alpine.data("userForm", userForm);
+Alpine.data("rolePermission", rolePermission);
+Alpine.data("settingApplication", settingApplication);
+Alpine.data("vesselData", vesselData);
+Alpine.data("palkaData", palkaData);
 
 window.toast = setNotification;
 window.errorCustom = customError;
@@ -26,3 +37,4 @@ if (!window.Alpine) {
 }
 
 window.dispatchConfirmDialog = showConfirmDialog;
+window.hideConfirmDialog = hideConfirmDialog;

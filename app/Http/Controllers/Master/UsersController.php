@@ -42,6 +42,7 @@ class UsersController extends Controller
                 'password' => 'required|string|min:8',
                 'avatar' => 'nullable|image|max:1048',
                 'role' => 'required|exists:roles,id',
+                'is_active' => 'required|boolean',
             ]);
 
             $data['password'] = Hash::make($data['password']);
@@ -99,6 +100,7 @@ class UsersController extends Controller
                 'password' => 'nullable|string|min:8',
                 'avatar' => 'nullable|image|max:1048',
                 'role' => 'required|exists:roles,id',
+                'is_active' => 'required|in:0,1',
             ]);
 
             if($request->password){

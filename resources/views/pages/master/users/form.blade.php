@@ -43,15 +43,22 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="mb-2 form-group">
+                            <x-form.input-label class="mb-1" for="status" value="{{ __('Status') }}" />
+                            <div class="status">
+                                <x-form.radio-button identity="active" name="status" value="1" title="Active" x-model="user.is_active.value" />
+                                <x-form.radio-button identity="inactive" name="status" value="0" title="Inactive" x-model="user.is_active.value" />
+                            </div>
+                        </div>
 
                         <div class="mt-5 flex gap-2">
-                            <x-button.secondary-button type="button" onclick="window.location.href='{{ route('users.index') }}'" title="Back to User List">
+                            <x-button type="button" class="bg-secondary" @click="window.location.href='{{ route('users.index') }}'" title="Back to User List">
                                 <i class="far fa-arrow-alt-circle-left me-1"></i> Back
-                            </x-button.secondary-button>
+                            </x-button>
 
-                            <x-button.primary-button type="button" title="Save User" @click="onSaveUser">
+                            <x-button type="button" class="bg-primary" title="Save User" @click="onSaveUser">
                                 <i class="far fa-save me-1"></i> Save
-                            </x-button.primary-button>
+                            </x-button>
                         </div>
                     </div>
                 </div>

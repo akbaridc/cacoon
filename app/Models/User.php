@@ -18,6 +18,8 @@ class User extends Authenticatable implements HasMedia
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, HasRoles, InteractsWithMedia;
 
+    protected $guard_name = 'web';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -71,9 +73,6 @@ class User extends Authenticatable implements HasMedia
         return $this->hasOne(Employee::class, 'nik', 'nik');
     }
 
-    /**
-     * Check if the user's token is still valid
-     */
     public function isTokenValid(): bool
     {
         if (!$this->token || !$this->token_expires_at) {
