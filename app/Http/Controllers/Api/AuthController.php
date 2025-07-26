@@ -44,7 +44,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!$user->access_moboile) {
+        if (!$user->access_mobile) {
             return response()->json([
                 'message' => 'Your account is not access. Please contact administrator.',
             ], 403);

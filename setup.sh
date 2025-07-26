@@ -3,6 +3,15 @@ echo "Cacoon"
 echo "========================================"
 echo
 
+echo
+echo "Copying env/.env-dev.copy to .env..."
+cp env/.env-dev.copy .env
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to copy env/.env-dev.copy to .env"
+    exit 1
+fi
+
+
 echo "Installing PHP dependencies..."
 composer install
 if [ $? -ne 0 ]; then
@@ -25,15 +34,6 @@ if [ $? -ne 0 ]; then
     echo "Error: Failed to build"
     exit 1
 fi
-
-echo
-echo "Copying env/.env-dev.copy to .env..."
-cp env/.env-dev.copy .env
-if [ $? -ne 0 ]; then
-    echo "Error: Failed to copy env/.env-dev.copy to .env"
-    exit 1
-fi
-
 echo
 echo "Generating application key..."
 php artisan key:generate
