@@ -53,6 +53,7 @@ class UsersController extends Controller
             }
 
             $role = \App\Models\Role::findOrFail($request->role);
+            $user->avatar = $user->getFirstMediaUrl('avatars', 'thumb');
             $user->assignRole($role->name);
 
             DB::commit();
@@ -120,6 +121,9 @@ class UsersController extends Controller
                     ->usingName('Avatar')
                     ->withCustomProperties(['uploaded_by' => auth()->user()->id])
                     ->toMediaCollection('avatars');
+
+                $user->avatar = $user->getFirstMediaUrl('avatars', 'thumb');
+                $user->save();
             }
 
             $role = \App\Models\Role::findOrFail($request->role);

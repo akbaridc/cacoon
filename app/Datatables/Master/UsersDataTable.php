@@ -17,7 +17,7 @@ class UsersDataTable extends DataTable
      */
     public function dataTable()
     {
-        $query = User::with('employee');
+        $query = User::query();
         return datatables()
             ->eloquent($query)
             ->addColumn('action', function ($query) {

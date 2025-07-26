@@ -35,7 +35,8 @@ class User extends Authenticatable implements HasMedia
         'is_active',
         'token_expires_at',
         'avatar',
-        'status'
+        'status',
+        'position_title'
     ];
 
     /**
@@ -93,5 +94,4 @@ class User extends Authenticatable implements HasMedia
     {
         $this->addMediaConversion('thumb')->width(100)->height(100)->sharpen(10)->nonQueued();
     }
-
 }

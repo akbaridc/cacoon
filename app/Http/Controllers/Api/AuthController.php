@@ -142,7 +142,6 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load('employee');
 
         return response()->json([
             'user' => $user,
