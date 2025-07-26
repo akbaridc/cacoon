@@ -19,10 +19,7 @@ class VesselController extends Controller
     public function sync(Request $request)
     {
         set_time_limit(0);
-        $urlEndpointVessel = "https://petroport.petrokimia-gresik.com/api/cacoon/arrivals?skip=0&status=proses";
         $apiService = new ApiService(60);
-        $response = $apiService->get($urlEndpointVessel);
-        $datas =  $response->json();
 
         DB::beginTransaction();
         try {
@@ -66,6 +63,8 @@ class VesselController extends Controller
                 $skip += $take;
 
             } while ($fetchedCount === $take);
+
+            logActivity('Vessel', auth()->user()->name . " syncronize data vessel");
 
             DB::commit();
             return response()->json(['status' => true, 'message' => "Sync complete. Total fetched: $totalFetched"], 201);

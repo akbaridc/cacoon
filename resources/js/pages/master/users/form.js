@@ -7,9 +7,11 @@ const userForm = () => {
                 const roleId = userData.roles[0].id;
                 this.user.nik.value = userData.nik;
                 this.user.name.value = userData.name;
+                this.user.position_title.value = userData.position_title;
                 this.user.email.value = userData.email;
                 this.user.role.value = roleId;
                 this.user.is_active.value = userData.is_active ? '1' : '0';
+                this.user.access_mobile.value = userData.access_mobile ? '1' : '0';
 
                 this.$refs.roleSelected.value = roleId;
 
@@ -20,11 +22,13 @@ const userForm = () => {
         user: {
             nik: {value: '', field: '#nik'},
             name: {value: '', field: '#name'},
+            position_title: {value: '', field: '#position_title'},
             email: {value: '', field: '#email'},
             password: {value: '', field: '#password'},
             avatar: {value: null, field: '#avatar'},
             role: {value: '', field: '#role'},
             is_active: {value: '1', field: '.status'},
+            access_mobile: {value: '1', field: '.access_mobile'},
         },
         maxSizeUpload: 1048000,
         onFileChange(event) {
@@ -47,11 +51,13 @@ const userForm = () => {
             this.user = {
                 nik: {value: '', field: '#nik'},
                 name: {value: '', field: '#name'},
+                position_title: {value: '', field: '#position_title'},
                 email: {value: '', field: '#email'},
                 password: {value: '', field: '#password'},
                 avatar: {value: null, field: '#avatar'},
                 role: {value: '', field: '#role'},
                 is_active: {value: '1', field: '.status'},
+                access_mobile: {value: '1', field: '.access_mobile'},
             };
             this.$refs.avatarInput.value = '';
             this.$refs.roleSelected.value = '';
@@ -63,6 +69,7 @@ const userForm = () => {
 
             if(this.user.nik.value === '') error.push({message: 'NIK is required',field: this.user.nik.field});
             if(this.user.name.value === '') error.push({message: 'Name is required',field: this.user.name.field});
+            if(this.user.position_title.value === '') error.push({message: 'Position Title is required',field: this.user.position_title.field});
             if(this.user.email.value === '') error.push({message: 'Email is required',field: this.user.email.field});
             if(this.user.email.value && !validateEmail(this.user.email.value)) error.push({message: 'Invalid email format',field: this.user.email.field});
             if(this.mode == 'create' && this.user.password.value === '') error.push({message: 'Password is required',field: this.user.password.field});
@@ -83,10 +90,12 @@ const userForm = () => {
             const formData = new FormData();
             formData.append('nik', this.user.nik.value);
             formData.append('name', this.user.name.value);
+            formData.append('position_title', this.user.position_title.value);
             formData.append('email', this.user.email.value);
             formData.append('password', this.user.password.value);
             formData.append('role', this.user.role.value);
             formData.append('is_active', parseInt(this.user.is_active.value));
+            formData.append('access_mobile', parseInt(this.user.access_mobile.value));
             if (this.user.avatar.value) {
                 formData.append('avatar', this.user.avatar.value);
             }

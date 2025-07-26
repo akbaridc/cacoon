@@ -38,11 +38,13 @@ class UsersController extends Controller
             $data = $request->validate([
                 'nik' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
+                'position_title' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:8',
                 'avatar' => 'nullable|image|max:1048',
                 'role' => 'required|exists:roles,id',
                 'is_active' => 'required|boolean',
+                'access_mobile' => 'required|boolean',
             ]);
 
             $data['password'] = Hash::make($data['password']);
@@ -55,6 +57,8 @@ class UsersController extends Controller
             $role = \App\Models\Role::findOrFail($request->role);
             $user->avatar = $user->getFirstMediaUrl('avatars', 'thumb');
             $user->assignRole($role->name);
+
+            logActivity('Users', auth()->user()->name . " create new user {$request->name}");
 
             DB::commit();
             return response()->json(['status' => true,'message' => 'User created successfully'], 201);
@@ -97,11 +101,13 @@ class UsersController extends Controller
             $data = $request->validate([
                 'nik' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
+                'position_title' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'password' => 'nullable|string|min:8',
                 'avatar' => 'nullable|image|max:1048',
                 'role' => 'required|exists:roles,id',
                 'is_active' => 'required|in:0,1',
+                'access_mobile' => 'required|in:0,1',
             ]);
 
             if($request->password){
@@ -129,6 +135,8 @@ class UsersController extends Controller
             $role = \App\Models\Role::findOrFail($request->role);
             $user->assignRole($role->name);
 
+            logActivity('Users', auth()->user()->name . " update user data user");
+
             DB::commit();
             return response()->json(['status' => true,'message' => 'User updated successfully'], 201);
         } catch (\Exception $e) {
@@ -144,7 +152,9 @@ class UsersController extends Controller
     {
         DB::beginTransaction();
         try {
+            $userName = $user->name;
             $user->clearMediaCollection('avatars');
+            logActivity('Users', auth()->user()->name . " deleted user {$userName}");
             $user->delete();
             DB::commit();
             return response()->json(['status' => true,'message' => 'User deleted successfully'], 201);

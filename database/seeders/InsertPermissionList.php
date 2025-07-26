@@ -35,6 +35,9 @@ class InsertPermissionList extends Seeder
                 'view.palka',
                 'edit.palka',
                 'delete.palka',
+
+                //Logs
+                'logs.read',
             ];
 
             dump('Insert permission running...');

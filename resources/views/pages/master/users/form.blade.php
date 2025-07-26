@@ -19,6 +19,10 @@
                             <x-form.text-input id="name" name="name" placeholder="enter name" x-model="user.name.value" />
                         </div>
                         <div class="mb-2 form-group">
+                            <x-form.input-label for="position_title" value="{{ __('Position Title') }}" :mandatory="true" />
+                            <x-form.text-input id="position_title" name="position_title" placeholder="enter position title" x-model="user.position_title.value" />
+                        </div>
+                        <div class="mb-2 form-group">
                             <x-form.input-label for="email" value="{{ __('Email') }}" :mandatory="true" />
                             <x-form.text-input type="email" id="email" name="email" placeholder="enter email" x-model="user.email.value" />
                         </div>
@@ -42,6 +46,13 @@
                                     <option value="{{ $role->id }}">{{ $role->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="mb-2 form-group">
+                            <x-form.input-label class="mb-1" for="access_mobile" value="{{ __('Access Mobile') }}" />
+                            <div class="access_mobile">
+                                <x-form.radio-button identity="access_mobile_active" name="access_mobile" value="1" title="Active" x-model="user.access_mobile.value" />
+                                <x-form.radio-button identity="access_mobile_inactive" name="access_mobile" value="0" title="Inactive" x-model="user.access_mobile.value" />
+                            </div>
                         </div>
                         <div class="mb-2 form-group">
                             <x-form.input-label class="mb-1" for="status" value="{{ __('Status') }}" />

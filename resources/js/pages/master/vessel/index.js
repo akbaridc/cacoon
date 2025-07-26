@@ -15,7 +15,7 @@ const vesselData = () => {
                     .then(response => {
                         if(response?.data.status){
                             toast(response?.data.message, "success");
-                            setTimeout(() => window.location.reload(), 2000)
+                            $('#datatable').DataTable().ajax.reload(null, false);
                         } else {
                             toast(response?.data.message, "error");
                         }

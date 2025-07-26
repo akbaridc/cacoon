@@ -62,8 +62,7 @@ const rolePermission = () => {
                             this.payload.permissions = [];
                             this.roleId = '';
                             this.clearChecked();
-                            setTimeout(() => window.location.reload(), 1500)
-                            // $("#datatable").DataTable().ajax.reload();
+                            $('#datatable').DataTable().ajax.reload(null, false);
                         } else {
                             toast(response?.data.message, "error");
                         }

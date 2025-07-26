@@ -60,7 +60,7 @@ const palkaData = () => {
                             toast(response.data.message, "success");
                             this.showModal = false;
                             this.clearField();
-                            setTimeout(() => window.location.reload(), 1500);
+                            $('#datatable').DataTable().ajax.reload(null, false);
                         } else {
                             toast(response.data.message || "Something went wrong", "error");
                         }

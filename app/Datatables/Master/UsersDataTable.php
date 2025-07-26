@@ -37,13 +37,16 @@ class UsersDataTable extends DataTable
             ->addColumn('is_active', function ($query) {
                 return $query->is_active ? '<span class="badge rounded-pill bg-primary">Active</span>' : '<span class="badge rounded-pill bg-danger">Inactive</span>';
             })
+            ->addColumn('access_mobile', function ($query) {
+                return $query->access_mobile ? '<span class="badge rounded-pill bg-primary">Active</span>' : '<span class="badge rounded-pill bg-danger">Inactive</span>';
+            })
             ->addColumn('role', function ($query) {
                 return $query->role_string;
             })
             ->addColumn('avatar', function ($query) {
                 return $query->getFirstMediaUrl('avatars', 'thumb') ? '<img src="' . $query->getFirstMediaUrl('avatars', 'thumb') . '" class="thumb-lg rounded-circle ">' : '<img src="' . asset('images/default-image.png') . '" class="thumb-lg rounded-circle">';
             })
-            ->rawColumns(['action', 'is_active', 'role', 'avatar'])
+            ->rawColumns(['action', 'is_active', 'role', 'avatar', 'access_mobile'])
             ->addIndexColumn();
     }
 
@@ -89,6 +92,7 @@ class UsersDataTable extends DataTable
             Column::make("email")->title("Email"),
             Column::computed("role")->title("Role"),
             Column::make("is_active")->title("Status")->searchable(false)->orderable(false),
+            Column::make("access_mobile")->title("Access Mobile")->searchable(false)->orderable(false),
             Column::computed('action')->title('Action')->orderable(false)->searchable(false),
         ];
     }

@@ -4,6 +4,8 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\Master\UsersController;
 use App\Http\Controllers\Master\PalkaController;
 use App\Models\SettingApplication;
+use Detection\MobileDetect;
+use Spatie\Activitylog\Models\Activity;
 
 if (!function_exists('collapseSidebar')) {
     function collapseSidebar($routes, $output = true)
@@ -82,5 +84,48 @@ if (!function_exists('settingApp')) {
     function settingApp()
     {
         return SettingApplication::first() ?? null;
+    }
+}
+
+if (!function_exists('logActivity')) {
+    function logActivity(string $subject, string $message, array $extraProperties = [], $causerId = null)
+    {
+        $request = request();
+        $detect = new MobileDetect;
+
+        $isMobile = $detect->isMobile();
+        $isTablet = $detect->isTablet();
+        $device = $isTablet ? 'Tablet' : ($isMobile ? 'Mobile' : 'Desktop');
+
+        $defaultProperties = [
+            'ip_address' => $request->ip(),
+            'device' => $device,
+            'user_agent' => $request->header('User-Agent'),
+            'url' => $request->fullUrl(),
+            'request_data' => $request->except(['_token','_method']),
+        ];
+
+        $userId = auth()->id() ?? $causerId;
+
+        $exists = Activity::where('causer_id', $userId)
+            ->where('description', $message)
+            ->where('created_at', '>=', now()->subSeconds(5)) // waktu buffer 5 detik
+            ->exists();
+
+        if (!$exists) {
+            activity($subject)
+                ->causedBy(auth()->user() ?? $causerId)
+                ->withProperties(array_merge($defaultProperties, $extraProperties))
+                ->log($message);
+        }
+
+
+    }
+}
+
+if (!function_exists('formatNumber')) {
+    function formatNumber($number)
+    {
+        return number_format($number, 2, ',', '.');
     }
 }

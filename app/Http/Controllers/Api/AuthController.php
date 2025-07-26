@@ -44,6 +44,12 @@ class AuthController extends Controller
             ], 403);
         }
 
+        if (!$user->access_moboile) {
+            return response()->json([
+                'message' => 'Your account is not access. Please contact administrator.',
+            ], 403);
+        }
+
         // Generate 6 digit random token
         $token = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -53,6 +59,8 @@ class AuthController extends Controller
 
         // Send token via email
         Mail::to(settingApp()->email_receive_authentication)->send(new SendLoginTokenMail($token, $user->name));
+
+        logActivity('Mobile API', "{$user->name} access login", [], $user->id);
 
         return response()->json([
             'message' => 'Token has been sent to PIC',
@@ -95,6 +103,8 @@ class AuthController extends Controller
         $user->token_expires_at = $expiresAt;
         $user->save();
 
+        logActivity('Mobile API', "{$user->name} verify token login", [], $user->id);
+
         return response()->json([
             'access_token' => $accessToken,
             'token_type' => 'Bearer',
@@ -128,6 +138,8 @@ class AuthController extends Controller
         $user->token_expires_at = $expiresAt;
         $user->save();
 
+        // logActivity('Mobile API', "{$user->name} refresh token", [], $user->id);
+
         return response()->json([
             'access_token' => $accessToken,
             'token_type' => 'Bearer',
@@ -159,6 +171,8 @@ class AuthController extends Controller
         $user->token_text = null;
         $user->token_expires_at = null;
         $user->save();
+
+        logActivity('Mobile API', "{$user->name} logout application", [], $user->id);
 
         return response()->json([
             'message' => 'Successfully logged out',

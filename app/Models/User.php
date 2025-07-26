@@ -36,7 +36,8 @@ class User extends Authenticatable implements HasMedia
         'token_expires_at',
         'avatar',
         'status',
-        'position_title'
+        'position_title',
+        'access_mobile'
     ];
 
     /**
@@ -48,7 +49,7 @@ class User extends Authenticatable implements HasMedia
         'password',
         'remember_token',
         'token_text',
-        'token',
+        'token'
     ];
 
     /**

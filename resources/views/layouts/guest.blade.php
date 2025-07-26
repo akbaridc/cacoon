@@ -30,6 +30,8 @@
         </div>
     </div>
 
+    <x-ui.loading />
+
     @stack('scripts')
 </body>
 </html>

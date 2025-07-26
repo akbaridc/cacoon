@@ -5,7 +5,7 @@
 
                 <x-nav-link-label title="Main Menu" class="pt-0 mt-0" />
                 <x-nav-link :href="route('dashboard')" typeNav="sub" title="Dashboard" icon="iconoir-home-simple" :active="collapseSidebar(['dashbaord'])"  />
-                <x-nav-link-collapse title="Master Data" icon="iconoir-database" :active="collapseSidebar(['users'])">
+                <x-nav-link-collapse title="Master Data" icon="iconoir-database" :active="collapseSidebar(['users','vessel','palka'])">
                     <x-nav-link :href="route('users.index')" typeNav="sub" title="Users" :active="collapseSidebar(['users'])" />
                     <x-nav-link :href="route('vessel.index')" typeNav="sub" title="Vessel" :active="collapseSidebar(['vessel'])" />
                     <x-nav-link :href="route('palka.index')" typeNav="sub" title="Palka" :active="collapseSidebar(['palka'])" />
@@ -14,6 +14,9 @@
                 <x-nav-link-label title="Setting" class="mt-2" />
                 <x-nav-link :href="route('role-permission.index')" typeNav="sub" title="Role & Permission" icon="iconoir-home-simple" :active="collapseSidebar(['role-permission'])"  />
                 <x-nav-link :href="route('setting-application.index')" typeNav="sub" title="Setting Application" icon="iconoir-home-simple" :active="collapseSidebar(['setting-application'])"  />
+                
+                <x-nav-link-label title="Logs" class="mt-2" />
+                <x-nav-link :href="route('logs.index')" typeNav="sub" title="Logs" icon="iconoir-book" :active="collapseSidebar(['logs'])"  />
             </ul>
         </div>
     </div>

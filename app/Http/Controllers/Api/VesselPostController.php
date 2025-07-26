@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
 use App\Models\VesselPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -91,6 +92,8 @@ class VesselPostController extends Controller
         DB::beginTransaction();
         try {
 
+            $user = User::where('id', $request->user)->first();
+
             $vesselPost = VesselPost::create([
                 'vp_user_id' => $request->user,
                 'vp_vsl_code' => $request->vessel_code,
@@ -106,6 +109,8 @@ class VesselPostController extends Controller
             // Simpan media
             $vesselPost->addMediaFromRequest('photo_vessel')->usingName('Photo Vessel')->withCustomProperties(['uploaded_by' => $request->user])->toMediaCollection('photo_vessel');
             $vesselPost->addMediaFromRequest('photo_selfie')->usingName('Photo Selfie')->withCustomProperties(['uploaded_by' => $request->user])->toMediaCollection('photo_selfie');
+
+            logActivity('Mobile API', "{$user->name} progress vessel post", [], $user->id);
 
             DB::commit();
             return response()->json(['status' => true,'message' => 'Vessel post successfully'], 201);

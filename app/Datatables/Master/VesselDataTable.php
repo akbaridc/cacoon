@@ -20,6 +20,22 @@ class VesselDataTable extends DataTable
         $query = Vessel::query();
         return datatables()
             ->eloquent($query)
+            ->addColumn('vsl_survey_draught', function ($query) {
+                return $query->vsl_survey_draught ? formatNumber($query->vsl_survey_draught) : '';
+            })
+            ->addColumn('vsl_contract_tonnage', function ($query) {
+                return $query->vsl_contract_tonnage ? formatNumber($query->vsl_contract_tonnage) : '';
+            })
+            ->addColumn('vsl_est_time_arrival', function ($query) {
+                return $query->vsl_est_time_arrival ? \Carbon\Carbon::parse($query->vsl_est_time_arrival)->format('d M Y H:i') : '';
+            })
+            ->addColumn('vsl_time_berthing', function ($query) {
+                return $query->vsl_time_berthing ? \Carbon\Carbon::parse($query->vsl_time_berthing)->format('d M Y H:i') : '';
+            })
+            ->addColumn('vsl_time_unberthing', function ($query) {
+                return $query->vsl_time_unberthing ? \Carbon\Carbon::parse($query->vsl_time_unberthing)->format('d M Y H:i') : '';
+            })
+            ->rawColumns(['vsl_est_time_arrival','vsl_time_berthing','vsl_time_unberthing'])
             ->addIndexColumn();
     }
 
@@ -39,7 +55,7 @@ class VesselDataTable extends DataTable
     {
         return $this->builder()
             ->addTableClass('table table-bordered dt-responsive nowrap table-striped align-middle w-100')
-            ->setTableId('datatable-vessel')
+            ->setTableId('datatable')
             ->columns($this->getColumns())
             ->minifiedAjax()
             // ->dom('Bfrtip')

@@ -52,6 +52,8 @@ class PalkaController extends Controller
                 'pk_is_active' => $request->status,
             ]);
 
+            logActivity('Palka', auth()->user()->name . " create new palka {$request->name}");
+
             DB::commit();
             return response()->json(['status' => true,'message' => 'Palka created successfully'], 201);
 
@@ -101,6 +103,8 @@ class PalkaController extends Controller
                 'pk_is_active' => $request->status
             ]);
 
+            logActivity('Palka', auth()->user()->name . " update palka {$palka->name} to {$request->name}");
+
             DB::commit();
             return response()->json(['status' => true,'message' => 'Palka updated successfully'], 201);
 
@@ -117,7 +121,11 @@ class PalkaController extends Controller
     {
         DB::beginTransaction();
         try {
+            $palkaName = $palka->name;
             $palka->delete();
+
+            logActivity('Palka', auth()->user()->name . " deleted palka {$palkaName}");
+
             DB::commit();
             return response()->json(['status' => true,'message' => 'Palka deleted successfully'], 201);
         } catch (\Throwable $th) {
