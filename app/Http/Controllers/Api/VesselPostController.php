@@ -37,13 +37,6 @@ class VesselPostController extends Controller
         DB::beginTransaction();
         try {
 
-            //find vessel code in database
-            // $vessel = Vessel::where('vsl_code', $request->vessel_code)->first();
-            // if(!$vessel){
-            //     //insert data
-
-            // }
-
             $vesselPost = VesselPost::create([
                 'vp_user_id' => $request->user,
                 'vp_vsl_code' => $request->vessel_code,

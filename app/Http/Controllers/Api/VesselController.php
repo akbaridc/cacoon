@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Vessel;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -22,6 +23,7 @@ class VesselController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'status' => 'fail',
                 'message' => 'Bad request',
                 'error' => $validator->errors(),
             ], 400);
@@ -71,6 +73,8 @@ class VesselController extends Controller
         $vessel = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
 
         return response()->json([
+            'status' => 'success',
+            'message' => 'Vessel get successfully',
             'meta' => [
                 'total' => $total,
                 'page' => $page,
@@ -79,5 +83,35 @@ class VesselController extends Controller
             ],
             'data' => $vessel
         ]);
+    }
+
+    public function detail(Request $request, $vessel_code) {
+        $vessel_code = Str::replace('-', '/', $vessel_code);
+        $vesselQuery = Vessel::where('vsl_code', $vessel_code);
+
+        if (!$vesselQuery->exists()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Vessel not found, Contact Administrator',
+            ], 404);
+        }
+
+        $vessel = $vesselQuery->first();
+
+        if ($request->date) {
+            $vessel->load([
+                'vessel_post' => function ($query) use ($request) {
+                    $query->where('vp_post_date', $request->date);
+                },
+                'vessel_post.palka',
+                'vessel_post.user',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Vessel get successfully',
+            'data' => $vessel
+        ], 200);
     }
 }

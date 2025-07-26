@@ -208,6 +208,50 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "Get Vessel Detail",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/vessel/{{vessel_code}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "vessel", "{{vessel_code}}"]
+                        },
+                        "description": "Get vessel detail"
+                    }
+                },
+                {
+                    "name": "Get Vessel Post Detail",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/vessel/{{vessel_code}}?date={{date}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "vessel", "{{vessel_code}}", "?date={{date}}"]
+                        },
+                        "description": "Get vessel Post Detail"
+                    }
                 }
             ]
         },

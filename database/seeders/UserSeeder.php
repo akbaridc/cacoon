@@ -35,6 +35,15 @@ class UserSeeder extends Seeder
                 'role' => 'user',
             ],
             [
+                'name' => 'Ryan Hartadi',
+                'email' => 'ryan@gmail.com',
+                'password' => Hash::make('password'),
+                'nik' => '098765234',
+                'is_active' => true,
+                'email_verified_at' => now(),
+                'role' => 'user',
+            ],
+            [
                 'name' => 'Inactive User',
                 'email' => 'inactive@gmail.com',
                 'password' => Hash::make('password'),

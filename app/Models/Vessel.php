@@ -24,4 +24,9 @@ class Vessel extends Model
         'vsl_est_time_arrival',
         'vsl_time_unberthing'
     ];
+
+    public function vessel_post()
+    {
+        return $this->hasMany(VesselPost::class, 'vp_vsl_code', 'vsl_code');
+    }
 }
