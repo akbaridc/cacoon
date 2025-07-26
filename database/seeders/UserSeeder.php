@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -54,12 +53,6 @@ class UserSeeder extends Seeder
                 'nik' => $user['nik'],
                 'is_active' => $user['is_active'],
                 'email_verified_at' => $user['email_verified_at'],
-            ]);
-
-            Employee::create([
-                'nik' => $user['nik'],
-                'name' => $user['name'],
-                'emp_type' => 'emp',
             ]);
 
             $data->assignRole($user['role']);

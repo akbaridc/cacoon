@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('vessels', function (Blueprint $table) {
             $table->bigIncrements('vsl_id');
-            $table->unsignedBigInteger('vsl_orgn_id')->nullable();
-            $table->string('vsl_code', 20)->nullable();
+            $table->string('vsl_code', 20)->unique()->nullable();
             $table->string('vsl_name')->nullable();
-            $table->string('vsl_type')->nullable();
-            $table->string('vsl_origin_location')->nullable();
-            $table->string('vsl_origin_destination')->nullable();
             $table->string('vsl_arrival_type')->nullable();
-            $table->double('vsl_bl_tonnage')->nullable();
+            $table->double('vsl_survey_draught')->nullable();
             $table->double('vsl_contract_tonnage')->nullable();
+            $table->string('vsl_cargo_name')->nullable();
+            $table->string('vsl_destination')->nullable();
+            $table->dateTime('vsl_est_time_arrival')->nullable();
+            $table->dateTime('vsl_time_berthing')->nullable();
+            $table->dateTime('vsl_time_unberthing')->nullable();
             $table->timestamps();
         });
     }

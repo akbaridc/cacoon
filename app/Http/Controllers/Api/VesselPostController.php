@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Vessel;
 use App\Models\VesselPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,7 @@ class VesselPostController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user' => 'required:exists:users,id',
-            'vessel' => 'required:exists:vessels,id',
+            'vessel_code' => 'required:string',
             'palka' => 'required:exists:palkas,id',
             'date' => 'required|date',
             'time' => 'required|date_format:H:i:s',
@@ -36,9 +37,16 @@ class VesselPostController extends Controller
         DB::beginTransaction();
         try {
 
+            //find vessel code in database
+            // $vessel = Vessel::where('vsl_code', $request->vessel_code)->first();
+            // if(!$vessel){
+            //     //insert data
+
+            // }
+
             $vesselPost = VesselPost::create([
                 'vp_user_id' => $request->user,
-                'vp_vsl_id' => $request->vessel,
+                'vp_vsl_code' => $request->vessel_code,
                 'vp_pk_id' => $request->palka,
                 'vp_post_date' => $request->date,
                 'vp_post_time' => $request->time,

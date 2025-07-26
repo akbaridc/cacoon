@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('vessel_posts', function (Blueprint $table) {
             $table->id('vp_id');
             $table->foreignId('vp_user_id')->constrained('users', 'id')->onDelete('cascade');
-            $table->foreignId('vp_vsl_id')->constrained('vessels', 'vsl_id')->onDelete('cascade');
+            $table->string('vp_vsl_code', 20);
+            $table->foreign('vp_vsl_code')->references('vsl_code')->on('vessels')->onDelete('cascade');
             $table->foreignId('vp_pk_id')->constrained('palkas', 'pk_id')->onDelete('cascade');
 
             $table->date('vp_post_date');
