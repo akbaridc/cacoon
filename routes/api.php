@@ -40,6 +40,7 @@ Route::middleware('auth.api')->group(function () {
 
     // Vessel Post routes
     Route::controller(VesselPostController::class)->prefix('post')->name('post.')->group(function () {
+        Route::get('/', 'index');
         Route::post('/', 'store');
     });
 

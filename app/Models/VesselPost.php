@@ -29,6 +29,8 @@ class VesselPost extends Model implements HasMedia
         'vp_note'
     ];
 
+    protected $appends = ['vp_photo_vessel', 'vp_photo_selfie'];
+
     public function registerMediaConversions(?Media $media = null): void
     {
         $this
@@ -60,5 +62,15 @@ class VesselPost extends Model implements HasMedia
     public function user()
     {
         return $this->belongsTo(User::class, 'vp_user_id', 'id');
+    }
+
+    public function getVpPhotoVesselAttribute()
+    {
+        return $this->getFirstMediaUrl('photo_vessel', 'thumb');
+    }
+
+    public function getVpPhotoSelfieAttribute()
+    {
+        return $this->getFirstMediaUrl('photo_selfie', 'thumb');
     }
 }

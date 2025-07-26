@@ -326,6 +326,63 @@
             "name": "Posts",
             "item": [
                 {
+                    "name": "Get Post",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/post?page=1&limit=10",
+                            "host": ["{{base_url}}"],
+                            "path": ["api", "post"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number for pagination"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Number of records per page"
+                                },
+                                {
+                                    "key": "sort_by",
+                                    "value": "",
+                                    "description": "Sort data column"
+                                },
+                                {
+                                    "key": "sort_order",
+                                    "value": "",
+                                    "description": "Sort order asc or desc"
+                                }
+                            ]
+                        },
+                        "description": "Get list post"
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "if (pm.request.url.query && Array.isArray(pm.request.url.query.members)) {",
+                                    "    pm.request.url.query.members = pm.request.url.query.members.filter(q => q.value !== '');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "Store Post",
                     "request": {
                         "method": "POST",

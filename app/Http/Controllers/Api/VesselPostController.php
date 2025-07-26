@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Vessel;
 use App\Models\VesselPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +10,61 @@ use Illuminate\Support\Facades\Validator;
 
 class VesselPostController extends Controller
 {
+    public function index(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'page' => 'nullable|integer|min:1',
+            'limit' => 'nullable|integer|min:1|max:100',
+            'sort_by' => 'nullable|string',
+            'sort_order' => 'nullable|string|in:asc,desc',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Bad request',
+                'error' => $validator->errors(),
+            ], 400);
+        }
+
+        $allowedKeys = ['page', 'limit', 'sort_by', 'sort_order'];
+
+        $inputKeys = array_keys($request->query());
+        $invalidKeys = array_diff($inputKeys, $allowedKeys);
+
+        if (!empty($invalidKeys)) {
+            return response()->json([
+                'message' => 'Invalid query parameter(s): ' . implode(', ', $invalidKeys),
+            ], 400);
+        }
+
+        $query = VesselPost::with('user');
+
+        if ($request->filled('sort_by') && $request->filled('sort_order')) {
+            $query->orderBy($request->input('sort_by'), $request->input('sort_order'));
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $total = $query->count();
+
+        $perPage = (int)$request->input('limit', 10);
+        $page = (int)$request->input('page', 1);
+        $vessel = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Vessel post get successfully',
+            'meta' => [
+                'total' => $total,
+                'page' => $page,
+                'limit' => $perPage,
+                'last_page' => ceil($total / $perPage)
+            ],
+            'data' => $vessel
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
