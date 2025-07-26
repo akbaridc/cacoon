@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Permission;
-use App\Datatables\RolePermissionDataTable;
+use App\DataTables\RolePermissionDataTable;
 
 class RolePermissionController extends Controller
 {

@@ -456,6 +456,84 @@
                     }
                 }
             ]
+        },
+        {
+            "name": "Story",
+            "item": [
+                {
+                    "name": "Get Story",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{dev}}/api/story",
+                            "host": ["{{dev}}"],
+                            "path": ["api", "story"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number for pagination"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Number of records per page"
+                                }
+                            ]
+                        },
+                        "description": "Get list story"
+                    },
+                    "event": [
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "if (pm.request.url.query && Array.isArray(pm.request.url.query.members)) {",
+                                    "    pm.request.url.query.members = pm.request.url.query.members.filter(q => q.value !== '');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Post Mark as Viewed",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{dev}}/api/story/view",
+                            "host": ["{{dev}}"],
+                            "path": ["api", "story", "view"],
+                            "body": {
+                                "mode": "raw",
+                                "raw": "{\n    \"vp_id\": 1 \n}"
+                            }
+                        },
+                        "description": "Post Mark as Viewed"
+                    }
+                }
+            ]
         }
     ],
     "variable": [

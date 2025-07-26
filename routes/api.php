@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\VesselController;
 use App\Http\Controllers\Api\PalkaController;
 use App\Http\Controllers\Api\VesselPostController;
+use App\Http\Controllers\Api\StoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +43,12 @@ Route::middleware('auth.api')->group(function () {
     Route::controller(VesselPostController::class)->prefix('post')->name('post.')->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
+    });
+
+    //Story routes
+    Route::controller(StoryController::class)->prefix('story')->name('story.')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/view', 'markAsViewed');
     });
 
 });

@@ -69,7 +69,7 @@ class VesselPostController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user' => 'required:exists:users,id',
+            'user' => 'nullable:exists:users,id',
             'vessel_code' => 'required:string',
             'palka' => 'required:exists:palkas,id',
             'date' => 'required|date',
@@ -91,11 +91,11 @@ class VesselPostController extends Controller
 
         DB::beginTransaction();
         try {
-
-            $user = User::where('id', $request->user)->first();
+            $user = $request->user();
+            // $user = User::where('id', $request->user)->first();
 
             $vesselPost = VesselPost::create([
-                'vp_user_id' => $request->user,
+                'vp_user_id' => $user->id,
                 'vp_vsl_code' => $request->vessel_code,
                 'vp_pk_id' => $request->palka,
                 'vp_post_date' => $request->date,
@@ -107,8 +107,8 @@ class VesselPostController extends Controller
             ]);
 
             // Simpan media
-            $vesselPost->addMediaFromRequest('photo_vessel')->usingName('Photo Vessel')->withCustomProperties(['uploaded_by' => $request->user])->toMediaCollection('photo_vessel');
-            $vesselPost->addMediaFromRequest('photo_selfie')->usingName('Photo Selfie')->withCustomProperties(['uploaded_by' => $request->user])->toMediaCollection('photo_selfie');
+            $vesselPost->addMediaFromRequest('photo_vessel')->usingName('Photo Vessel')->withCustomProperties(['uploaded_by' => $user->id])->toMediaCollection('photo_vessel');
+            $vesselPost->addMediaFromRequest('photo_selfie')->usingName('Photo Selfie')->withCustomProperties(['uploaded_by' => $user->id])->toMediaCollection('photo_selfie');
 
             logActivity('Mobile API', "{$user->name} progress vessel post", [], $user->id);
 
