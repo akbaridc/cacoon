@@ -45,8 +45,8 @@ class VesselController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('vsl_code', 'like', "%{$search}%")
                     ->orWhere('vsl_name', 'like', "%{$search}%")
-                    ->orWhere('vsl_origin_location', 'like', "%{$search}%")
-                    ->orWhere('vsl_origin_destination', 'like', "%{$search}%");
+                    ->orWhere('vsl_destination', 'like', "%{$search}%")
+                    ->orWhere('vsl_cargo_name', 'like', "%{$search}%");
             });
         }
 
@@ -61,7 +61,7 @@ class VesselController extends Controller
         if ($request->filled('sort_by') && $request->filled('sort_order')) {
             $query->orderBy($request->input('sort_by'), $request->input('sort_order'));
         } else {
-            $query->orderBy('vsl_orgn_id');
+            $query->orderBy('vsl_est_time_arrival');
         }
 
         $total = $query->count();

@@ -304,7 +304,7 @@
                             "mode": "formdata",
                             "formdata": [
                                 { "key": "user", "value": "1", "type": "text" },
-                                { "key": "vessel", "value": "2", "type": "text" },
+                                { "key": "vessel_code", "value": "2", "type": "text" },
                                 { "key": "palka", "value": "3", "type": "text" },
                                 { "key": "date", "value": "2025-07-22", "type": "text" },
                                 { "key": "time", "value": "14:30:00", "type": "text" },

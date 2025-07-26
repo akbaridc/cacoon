@@ -61,12 +61,14 @@ class VesselDataTable extends DataTable
             Column::make("DT_RowIndex")->title("No")->orderable(false)->searchable(false),
             Column::make("vsl_code")->title("Code"),
             Column::make("vsl_name")->title("Name"),
-            Column::make("vsl_type")->title("Type"),
-            Column::make("vsl_origin_location")->title("Origin Location"),
-            Column::make("vsl_origin_destination")->title("Origin Destination"),
             Column::make("vsl_arrival_type")->title("Arrival Type"),
-            Column::make("vsl_bl_tonnage")->title("Tonnage"),
+            Column::make("vsl_survey_draught")->title("Survey Draught"),
             Column::make("vsl_contract_tonnage")->title("Contract Tonnage"),
+            Column::make("vsl_cargo_name")->title("Cargo Name"),
+            Column::make("vsl_destination")->title("Destination"),
+            Column::make("vsl_est_time_arrival")->title("Est. Time Arrival"),
+            Column::make("vsl_time_berthing")->title("Time Berthing"),
+            Column::make("vsl_time_unberthing")->title("Time Unberthing"),
         ];
     }
 

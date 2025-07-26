@@ -35,7 +35,7 @@ class User extends Authenticatable implements HasMedia
         'is_active',
         'token_expires_at',
         'avatar',
-        'is_organic'
+        'status'
     ];
 
     /**
@@ -63,14 +63,6 @@ class User extends Authenticatable implements HasMedia
             'token_expires_at' => 'datetime',
             'is_active' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the employee associated with the user.
-     */
-    public function employee()
-    {
-        return $this->hasOne(Employee::class, 'nik', 'nik');
     }
 
     public function isTokenValid(): bool

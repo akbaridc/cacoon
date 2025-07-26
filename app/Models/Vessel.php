@@ -14,14 +14,14 @@ class Vessel extends Model
 
     protected $fillable = [
         'vsl_id',
-        'vsl_orgn_id',
         'vsl_code',
         'vsl_name',
-        'vsl_type',
-        'vsl_origin_location',
-        'vsl_origin_destination',
         'vsl_arrival_type',
-        'vsl_bl_tonnage',
-        'vsl_contract_tonnage'
+        'vsl_survey_draught',
+        'vsl_contract_tonnage',
+        'vsl_cargo_name',
+        'vsl_destination',
+        'vsl_est_time_arrival',
+        'vsl_time_unberthing'
     ];
 }

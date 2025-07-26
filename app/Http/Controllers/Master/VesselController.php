@@ -19,40 +19,59 @@ class VesselController extends Controller
     public function sync(Request $request)
     {
         set_time_limit(0);
-        $urlEndpointVessel = "https://petroport.petrokimia-gresik.com/api/pi/v1/get-vessel-arrival";
-        $secretToken = "8AhJ17M=sWnitA9oxh7ZLy?V/cAvwIP=iCSmUCsyB2iDl=rUuIIXGlBJ1EJOEpPDpR32CP/SaxSAwCoiWFZ!4eMOutj4lucIUPW99Ym-I0vWJyk2ZQ8pyMxA8qwYZdyXPlyELdYhng?=/h/W1tP8WXFNYR=7oPCZCgwVslAvZ8fsbMIzGTjWxEAuUDob7NjHk1zh7zL2HFTHZukks!bVUl9FAT8BFSiLDETdvswYdVY?n?rRj-gi2VFz6JcVG1c7";
+        $urlEndpointVessel = "https://petroport.petrokimia-gresik.com/api/cacoon/arrivals?skip=0&status=proses";
         $apiService = new ApiService(60);
-        $response = $apiService->get($urlEndpointVessel, ['secret_token' => $secretToken]);
+        $response = $apiService->get($urlEndpointVessel);
         $datas =  $response->json();
 
         DB::beginTransaction();
         try {
-            if($datas){
-                foreach ($datas as $data) {
+            $take = 100;
+            $skip = 0;
+            $totalFetched = 0;
+
+            do {
+                $url = "https://petroport.petrokimia-gresik.com/api/cacoon/arrivals?skip={$skip}&take={$take}&status=proses";
+                $response = $apiService->get($url);
+                $dataBatch = $response->json();
+
+                if (!is_array($dataBatch) || count($dataBatch) === 0) {
+                    break;
+                }
+
+                foreach ($dataBatch as $data) {
                     $dataUpdate = [
-                        'vsl_name' => $data['vessel'],
-                        'vsl_type' => $data['vessel_type'],
-                        'vsl_origin_location' => $data['POL'],
-                        'vsl_origin_destination' => $data['POD'],
-                        'vsl_arrival_type' => $data['arrival_type'],
-                        'vsl_bl_tonnage' => $data['bl_tonnage'],
-                        'contract_tonnage' => $data['contract_tonnage'],
+                        'vsl_name' => $data['vessel_name'] ?? null,
+                        'vsl_arrival_type' => $data['arrival_type'] ?? null,
+                        'vsl_survey_draught' => $data['survey_draught'] ?? null,
+                        'vsl_contract_tonnage' => $data['contract_tonnage'] ?? null,
+                        'vsl_cargo_name' => $data['cargo_name'] ?? null,
+                        'vsl_destination' => $data['destination'] ?? null,
+                        'vsl_est_time_arrival' => $data['est_time_arrival'] ?? null,
+                        'vsl_time_unberthing' => $data['time_unberthing'] ?? null,
                     ];
-                    $vessel = Vessel::where(['vsl_code'=> $data['code']])->first();
-                    if($vessel){
+
+                    $vessel = Vessel::where('vsl_code', $data['arrival_code'])->first();
+
+                    if ($vessel) {
                         $vessel->update($dataUpdate);
                     } else {
-                        $dataUpdate = array_merge($dataUpdate, ['vsl_code' => $data['code'], 'vsl_orgn_id' => $data['id']]);
+                        $dataUpdate['vsl_code'] = $data['arrival_code'];
                         Vessel::create($dataUpdate);
                     }
                 }
-            }
+
+                $fetchedCount = count($dataBatch);
+                $totalFetched += $fetchedCount;
+                $skip += $take;
+
+            } while ($fetchedCount === $take);
 
             DB::commit();
-            return response()->json(['status' => true,'message' => 'Vessel syncronize successfully'], 201);
+            return response()->json(['status' => true, 'message' => "Sync complete. Total fetched: $totalFetched"], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => false,'message' => $e->getMessage()], 400);
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 400);
         }
     }
 }

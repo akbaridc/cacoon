@@ -18,7 +18,7 @@ class VesselPost extends Model implements HasMedia
     protected $fillable = [
         'vp_id',
         'vp_user_id',
-        'vp_vsl_id',
+        'vp_vsl_code',
         'vp_pk_id',
         'vp_post_date',
         'vp_post_time',
@@ -49,7 +49,7 @@ class VesselPost extends Model implements HasMedia
 
     public function vessel()
     {
-        return $this->belongsTo(Vessel::class, 'vp_vsl_id', 'vsl_id');
+        return $this->belongsTo(Vessel::class, 'vp_vsl_code', 'vsl_code');
     }
 
     public function palka()

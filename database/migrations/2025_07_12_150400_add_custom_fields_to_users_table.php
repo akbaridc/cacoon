@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('token_text')->nullable()->after('token');
             $table->boolean('is_active')->default(true)->after('token_text');
             $table->timestamp('token_expires_at')->nullable()->after('is_active');
-            $table->boolean('is_organic')->default(true)->after('token_expires_at');
+            $table->boolean('status')->default(true)->after('token_expires_at');
         });
     }
 
