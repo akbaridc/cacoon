@@ -31,7 +31,7 @@ Route::middleware('auth.api')->group(function () {
     // Vessel routes
     Route::controller(VesselController::class)->prefix('vessel')->name('vessel.')->group(function () {
         Route::get('/', 'index');
-        Route::get('/{vessel_code}', 'detail');
+        Route::get('/{vesselId}', 'detail');
     });
 
     // Palka routes

@@ -91,8 +91,8 @@ class VesselPostController extends Controller
 
         DB::beginTransaction();
         try {
-            $user = $request->user();
-            // $user = User::where('id', $request->user)->first();
+            // $user = $request->user();
+            $user = User::where('id', $request->user)->first();
 
             $vesselPost = VesselPost::create([
                 'vp_user_id' => $user->id,
