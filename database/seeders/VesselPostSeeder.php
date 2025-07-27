@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use App\Models\VesselPost;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class VesselPostSeeder extends Seeder
 {
@@ -12,6 +15,13 @@ class VesselPostSeeder extends Seeder
      */
     public function run(): void
     {
+
+        // 1. Hapus semua media dari database
+        Media::truncate();
+
+        // 2. Hapus folder media fisik
+        Storage::deleteDirectory('public/media');
+
         $vesselCode = ["ARR/2020/114", "ARR/2020/115", "ARR/2020/116", "ARR/2020/117", "ARR/2020/118", "ARR/2020/129", "ARR/2020/130"];
         $dates = ["2025-07-19", "2025-07-20", "2025-07-21", "2025-07-22", "2025-07-23", "2025-07-24", "2025-07-25", "2025-07-25"];
         $times = [
@@ -21,7 +31,7 @@ class VesselPostSeeder extends Seeder
         foreach ($vesselCode as $code) {
             foreach ($dates as $date) {
                 foreach ($times as $entry) {
-                    \App\Models\VesselPost::create([
+                    $vesselPost = \App\Models\VesselPost::create([
                         'vp_user_id' => $entry['user_id'],
                         'vp_vsl_code' => $code,
                         'vp_pk_id' => 1,
@@ -34,6 +44,25 @@ class VesselPostSeeder extends Seeder
                         'created_at' => $date . " " . $entry['time'],
                         'updated_at' => $date . " " . $entry['time'],
                     ]);
+
+                    $photoVesselPath = base_path('database/seeders/sample_file/vessel.jpg');
+                    $photoSelfiePath = base_path('database/seeders/sample_file/selfie.jpg');
+
+                    if (File::exists($photoVesselPath)) {
+                        $vesselPost->addMedia($photoVesselPath)
+                            ->preservingOriginal()
+                            ->usingName('Photo Vessel')
+                            ->withCustomProperties(['uploaded_by' => $entry['user_id']])
+                            ->toMediaCollection('photo_vessel');
+                    }
+
+                    if (File::exists($photoSelfiePath)) {
+                        $vesselPost->addMedia($photoSelfiePath)
+                            ->preservingOriginal()
+                            ->usingName('Photo Selfie')
+                            ->withCustomProperties(['uploaded_by' => $entry['user_id']])
+                            ->toMediaCollection('photo_selfie');
+                    }
                 }
             }
         }
