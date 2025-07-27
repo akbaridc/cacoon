@@ -126,7 +126,7 @@ class ProfileView extends GetView<ProfileController> {
                               style: TextStyle(color: greyText),
                             ),
                             Text(
-                              controller.position,
+                              controller.position == 'null' ? '-' : controller.position,
                               style: TextStyle(color: Colors.red, fontSize: 12),
                             ),
                           ],

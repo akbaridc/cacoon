@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cacoon_mobile/app/data/boat_model.dart';
-import 'package:cacoon_mobile/app/data/task_model.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:flutter/material.dart';

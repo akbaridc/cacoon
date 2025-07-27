@@ -51,7 +51,6 @@ class HomeController extends GetxController {
 
 Future<void> fetchData({int page = 1}) async {
   try {
-    print("page: $page");
     var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.postVessel}?page=$page';
     String token = await SessionHelper.getAccessToken();
 

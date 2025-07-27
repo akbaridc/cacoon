@@ -8,16 +8,7 @@ import '../controllers/task_controller.dart';
 class TaskView extends GetView<TaskController> {
   const TaskView({super.key});
 
-  Future<ImageProvider> _loadImage(String url) async {
-    try {
-      final image = NetworkImage(url);
-      await precacheImage(image, Get.context!);
-      return image;
-    } catch (e) {
-      throw Exception('Failed to load image');
-    }
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +85,7 @@ class TaskView extends GetView<TaskController> {
                                       height: 100,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(
+                                      errorBuilder: (_, _, _) => Container(
                                         height: 100,
                                         width: double.infinity,
                                         color: Colors.grey.shade300,

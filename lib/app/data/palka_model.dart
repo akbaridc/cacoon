@@ -9,21 +9,21 @@ List<Palka> palkaFromJson(String str) => List<Palka>.from(json.decode(str).map((
 String palkaToJson(List<Palka> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Palka {
-    int id;
-    String name;
+    int pkId;
+    String pkName;
 
     Palka({
-        required this.id,
-        required this.name,
+        required this.pkId,
+        required this.pkName,
     });
 
     factory Palka.fromJson(Map<String, dynamic> json) => Palka(
-        id: json["id"],
-        name: json["name"],
+        pkId: json["pk_id"],
+        pkName: json["pk_name"],
     );
 
     Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
+        "pk_id": pkId,
+        "pk_name": pkName,
     };
 }

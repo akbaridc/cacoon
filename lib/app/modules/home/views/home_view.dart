@@ -132,7 +132,7 @@ class HomeView extends GetView<HomeController> {
             post.user.name,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: Text(_formatInstagramDate(post.vpPostDate)),
+          subtitle: Text(_formatInstagramDate(post.createdAt)),
           // trailing: const Icon(Icons.more_horiz),
         ),
         FutureBuilder<ImageProvider>(
