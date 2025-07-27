@@ -105,7 +105,7 @@ if (!function_exists('logActivity')) {
             'request_data' => $request->except(['_token','_method']),
         ];
 
-        $userId = auth()->id() ?? $causerId;
+        $userId = $causerId ??auth()->id();
 
         $exists = Activity::where('causer_id', $userId)
             ->where('description', $message)
@@ -114,7 +114,7 @@ if (!function_exists('logActivity')) {
 
         if (!$exists) {
             activity($subject)
-                ->causedBy(auth()->user() ?? $causerId)
+                ->causedBy($causerId ?? auth()->user())
                 ->withProperties(array_merge($defaultProperties, $extraProperties))
                 ->log($message);
         }

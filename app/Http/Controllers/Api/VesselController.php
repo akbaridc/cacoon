@@ -85,9 +85,8 @@ class VesselController extends Controller
         ]);
     }
 
-    public function detail(Request $request, $vessel_code) {
-        $vessel_code = Str::replace('-', '/', $vessel_code);
-        $vesselQuery = Vessel::where('vsl_code', $vessel_code);
+    public function detail(Request $request, $vesselId) {
+        $vesselQuery = Vessel::where('vsl_id', $vesselId);
 
         if (!$vesselQuery->exists()) {
             return response()->json([

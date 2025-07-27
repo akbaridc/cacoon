@@ -224,9 +224,9 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{dev}}/api/vessel/{{vessel_code}}",
+                            "raw": "{{dev}}/api/vessel/{{vesselId}}",
                             "host": ["{{dev}}"],
-                            "path": ["api", "vessel", "{{vessel_code}}"]
+                            "path": ["api", "vessel", "{{vesselId}}"]
                         },
                         "description": "Get vessel detail"
                     }
@@ -246,9 +246,9 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{dev}}/api/vessel/{{vessel_code}}?date={{date}}",
+                            "raw": "{{dev}}/api/vessel/{{vesselId}}?date={{date}}",
                             "host": ["{{dev}}"],
-                            "path": ["api", "vessel", "{{vessel_code}}", "?date={{date}}"]
+                            "path": ["api", "vessel", "{{vesselId}}", "?date={{date}}"]
                         },
                         "description": "Get vessel Post Detail"
                     }
