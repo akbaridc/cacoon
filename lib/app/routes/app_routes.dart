@@ -15,6 +15,7 @@ abstract class Routes {
   static const TASK = _Paths.TASK;
   static const DETAIL_BOAT = _Paths.DETAIL_BOAT;
   static const DETAIL_TASK = _Paths.DETAIL_TASK;
+  static const DETAIL_VESSEL = _Paths.DETAIL_VESSEL;
 }
 
 abstract class _Paths {
@@ -31,4 +32,5 @@ abstract class _Paths {
   static const TASK = '/task';
   static const DETAIL_BOAT = '/detail-boat';
   static const DETAIL_TASK = '/detail-task';
+  static const DETAIL_VESSEL = '/detail-vessel';
 }

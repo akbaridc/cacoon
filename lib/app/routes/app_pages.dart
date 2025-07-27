@@ -2,10 +2,10 @@ import 'package:get/get.dart';
 
 import '../modules/create/bindings/create_binding.dart';
 import '../modules/create/views/create_view.dart';
-import '../modules/detail_boat/bindings/detail_boat_binding.dart';
-import '../modules/detail_boat/views/detail_boat_view.dart';
 import '../modules/detail_task/bindings/detail_task_binding.dart';
 import '../modules/detail_task/views/detail_task_view.dart';
+import '../modules/detail_vessel/bindings/detail_vessel_binding.dart';
+import '../modules/detail_vessel/views/detail_vessel_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -77,14 +77,14 @@ class AppPages {
       binding: TaskBinding(),
     ),
     GetPage(
-      name: _Paths.DETAIL_BOAT,
-      page: () => const DetailBoatView(),
-      binding: DetailBoatBinding(),
-    ),
-    GetPage(
       name: _Paths.DETAIL_TASK,
       page: () => const DetailTaskView(),
       binding: DetailTaskBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_VESSEL,
+      page: () => const DetailVesselView(),
+      binding: DetailVesselBinding(),
     ),
   ];
 }

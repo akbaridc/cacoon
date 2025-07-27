@@ -23,6 +23,7 @@ class HomeController extends GetxController {
   var vesselPostData = <VesselPost>[].obs;
   var currentPage = 1;
   var lastPage = 1;
+  var isLoading = true.obs;
   var isLoadingMore = false.obs;
 
   final scrollController = ScrollController();
@@ -51,6 +52,10 @@ class HomeController extends GetxController {
 
 Future<void> fetchData({int page = 1}) async {
   try {
+    if (page == 1) {
+      isLoading.value = true;
+    }
+    
     var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.postVessel}?page=$page';
     String token = await SessionHelper.getAccessToken();
 
@@ -95,6 +100,10 @@ Future<void> fetchData({int page = 1}) async {
     }
   } catch (e) {
     print('Error during fetchData: $e');
+  } finally {
+    if (page == 1) {
+      isLoading.value = false;
+    }
   }
 }
 

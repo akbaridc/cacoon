@@ -92,10 +92,7 @@ class ProfileView extends GetView<ProfileController> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const CircleAvatar(
-                              radius: 40,
-                              child: CircularProgressIndicator(),
-                            );
+                            return _buildAvatarSkeleton();
                           } else if (snapshot.hasError) {
                             return const CircleAvatar(
                               radius: 40,
@@ -223,6 +220,25 @@ class ProfileView extends GetView<ProfileController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarSkeleton() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey.shade300,
+            Colors.grey.shade200,
+            Colors.grey.shade300,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
       ),
     );
   }

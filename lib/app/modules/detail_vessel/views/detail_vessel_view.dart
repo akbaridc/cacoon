@@ -1,14 +1,14 @@
 import 'package:cacoon_mobile/app/data/boat_model.dart';
 import 'package:cacoon_mobile/app/data/task_detail.dart';
-import 'package:cacoon_mobile/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../controllers/detail_task_controller.dart';
 
-class DetailTaskView extends GetView<DetailTaskController> {
-  const DetailTaskView({super.key});
+import '../controllers/detail_vessel_controller.dart';
 
+class DetailVesselView extends GetView<DetailVesselController> {
+  const DetailVesselView({super.key});
   @override
   Widget build(BuildContext context) {
     final boat = Get.arguments as Boat;
@@ -109,7 +109,6 @@ class DetailTaskView extends GetView<DetailTaskController> {
   }
 
   Widget _buildMonthYearFilter() {
-    final controller = Get.find<DetailTaskController>();
     return Row(
       children: [
         Expanded(
@@ -185,7 +184,7 @@ class DetailTaskView extends GetView<DetailTaskController> {
   }
 
   List<Widget> _buildTaskCardsForDate(List<TaskDetail> tasks) {
-    if(controller.isLoading.value) {
+    if (controller.isLoading.value) {
       return [
         SizedBox(
           width: 160,
@@ -201,7 +200,42 @@ class DetailTaskView extends GetView<DetailTaskController> {
         ),
       ];
     }
-    
+
+    if (tasks.isEmpty) {
+      return [
+        SizedBox(
+          width: double.infinity,
+          child: Container(
+            height: 120,
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inbox_outlined,
+                  size: 40,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Belum ada data untuk tanggal ini',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ];
+    }
+
     final List<Widget> taskWidgets = tasks.map((task) {
       return SizedBox(
         width: 160,
@@ -252,39 +286,6 @@ class DetailTaskView extends GetView<DetailTaskController> {
         ),
       );
     }).toList();
-
-    // Tambah button
-    taskWidgets.add(
-      SizedBox(
-        width: 160,
-        child: GestureDetector(
-          onTap: () {
-            final boat = Get.arguments as Boat; // Get the boat from current page arguments
-            final arguments = {
-              'boat': boat,
-              'date': controller.selectedDate.value,
-            };
-            print("Sending arguments to CREATE: $arguments");
-            print("Boat name: ${boat.vslName}, Boat code: ${boat.vslCode}");
-            print("Selected date: ${controller.selectedDate.value}");
-            
-            Get.toNamed(Routes.CREATE , arguments: arguments);
-          },
-          child: Container(
-            height: 150,
-            margin: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade400),
-            ),
-            child: const Center(
-              child: Icon(Icons.add, size: 40, color: Colors.grey),
-            ),
-          ),
-        ),
-      ),
-    );
 
     return taskWidgets;
   }

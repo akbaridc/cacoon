@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +16,7 @@ class SearchBoatController extends GetxController {
   final searchQuery = ''.obs;
 
   final scrollController = ScrollController();
+  Timer? _debounceTimer;
 
   @override
   void onInit() {
@@ -88,13 +90,22 @@ class SearchBoatController extends GetxController {
   @override
   void onClose() {
     scrollController.dispose();
+    _debounceTimer?.cancel();
     super.onClose();
   }
+
   void setKeyword(String keyword) {
     searchQuery.value = keyword;
-    print("Searching for: $keyword");
-    currentPage = 1;
-    boats.clear();
-    fetchBoat();
+    
+    // Cancel previous timer if it exists
+    _debounceTimer?.cancel();
+    
+    // Create new timer with 500ms delay
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      print("Searching for: $keyword");
+      currentPage = 1;
+      boats.clear();
+      fetchBoat();
+    });
   }
 }

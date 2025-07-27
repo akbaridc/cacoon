@@ -8,8 +8,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-class DetailTaskController extends GetxController {
-  final selectedMonth = DateTime.now().month.obs;
+class DetailVesselController extends GetxController {
+ final selectedMonth = DateTime.now().month.obs;
   final selectedYear = DateTime.now().year.obs;
   final selectedDate = Rxn<DateTime>();
   final dates = <DateTime>[].obs;

@@ -4,6 +4,7 @@ import 'package:cacoon_mobile/app/data/boat_model.dart';
 import 'package:cacoon_mobile/app/data/palka_model.dart';
 import 'package:cacoon_mobile/app/data/shift_model.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
+import 'package:cacoon_mobile/constants/lottie_assets.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,8 +13,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 
 class CreateController extends GetxController {
   var imageFile = Rxn<File>();
@@ -45,20 +49,36 @@ class CreateController extends GetxController {
   var noteTextController = TextEditingController();
 
   var isSubmitting = false.obs;
+  var showPreviewDialog = false.obs;
 
   Future<void> pickSelfieImage() async {
     await _determinePosition();
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80, // Maximum quality (0-100, 100 = max quality)
+      preferredCameraDevice: CameraDevice.front, // Front camera for selfie
+      maxWidth: 4000, // High resolution
+      maxHeight: 3000, // High resolution
+    );
 
     if (pickedFile != null) {
+      // For selfie, use original image without watermark
       selfieImageFile.value = File(pickedFile.path);
+      
+      // Show preview dialog after processing
+      // _showWatermarkPreview(File(pickedFile.path), isSelfie: true);
     }
   }
 
   @override
   void onInit() async {
     super.onInit();
+    
+    // Try to get arguments immediately
+    print("CREATE CONTROLLER onInit - Arguments: ${Get.arguments}");
+    _handleArguments();
+    
     if (!await _requestCameraPermission()) {
       Get.snackbar('Permission Error', 'Permission kamera tidak diberikan');
       return;
@@ -69,6 +89,83 @@ class CreateController extends GetxController {
 
     await fetchPalka();
     await fetchShift();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    
+    // Try again in onReady
+    print("CREATE CONTROLLER onReady - Arguments: ${Get.arguments}");
+    _handleArguments();
+    
+    // Also try with WidgetsBinding
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("CREATE CONTROLLER PostFrameCallback - Arguments: ${Get.arguments}");
+      _handleArguments();
+    });
+  }
+
+  void _handleArguments() {
+    final arguments = Get.arguments;
+    print("_handleArguments called with: $arguments");
+    print("Arguments type: ${arguments.runtimeType}");
+    
+    if (arguments != null && arguments is Map<String, dynamic>) {
+      final boat = arguments['boat'] as Boat?;
+      final date = arguments['date'] as DateTime?;
+      
+      print("Boat found: ${boat?.vslName}");
+      print("Date found: $date");
+      
+      if (boat != null) {
+        // Pre-fill boat data if provided
+        setSelectedBoat(boat.vslName, boat.vslCode);
+        print("Boat set: ${boat.vslName} - ${boat.vslCode}");
+      }
+      
+      if (date != null) {
+        // Set the date if provided
+        dateTime.value = DateFormat('yyyy-MM-dd hh:mm a').parse(date.toString());
+        print("Date set: $date");
+      }
+
+      print("Final state - Boat: ${boatTextController.text}, SelectedBoat: ${selectedBoat.value}");
+    } else {
+      print("No arguments received or wrong type");
+    }
+  }
+
+  // Public method for manual argument handling
+  void handleArguments(dynamic arguments) {
+    print("Manual handleArguments called with: $arguments");
+    print("Arguments type: ${arguments.runtimeType}");
+    
+    if (arguments != null && arguments is Map<String, dynamic>) {
+      final boat = arguments['boat'] as Boat?;
+      final date = arguments['date'] as DateTime?;
+      
+      print("Manual - Boat found: ${boat?.vslName}");
+      print("Manual - Date found: $date");
+      
+      if (boat != null) {
+        // Pre-fill boat data if provided
+        setSelectedBoat(boat.vslName, boat.vslCode);
+        print("Manual - Boat set: ${boat.vslName} - ${boat.vslCode}");
+      }
+      
+      if (date != null) {
+        // Set the date if provided
+        dateTime.value = date;
+        print("Manual - Date set: $date");
+      }
+
+      print("Manual - Final state - Boat: ${boatTextController.text}, SelectedBoat: ${selectedBoat.value}");
+    } else {
+      dateTime.value = DateTime.now();
+      _resetForm();
+      print("Manual - No arguments received or wrong type");
+    }
   }
 
   Future<void> doRefresh() async {
@@ -205,11 +302,22 @@ class CreateController extends GetxController {
 
     try {
       isSubmitting.value = true;
-      print("please wait");
+      print("Starting upload process...");
+      
+      // Show progress indicator with Lottie animation
+      _showLottieLoadingDialog(
+        lottieUrl: LottieAssets.uploadingAlt,
+        title: 'Mengunggah data...',
+        subtitle: 'Mohon tunggu sebentar',
+        width: 100,
+        height: 100,
+      );
       
       var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.postVessel}';
       final uri = Uri.parse(url);
       final request = http.MultipartRequest('POST', uri);
+      
+      // Set headers with timeout configuration
       request.headers['Content-Type'] = 'multipart/form-data';
       request.headers['Accept'] = 'application/json';
       request.headers['Authorization'] =
@@ -219,8 +327,8 @@ class CreateController extends GetxController {
       request.fields['user'] = (await SessionHelper.getId()).toString();
       request.fields['vessel_code'] = selectedBoat.value;
       request.fields['palka'] = selectedPalkaId.value.isNotEmpty ? selectedPalkaId.value : selectedPalka.value;
-      request.fields['date'] = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      request.fields['time'] = DateFormat('HH:mm:ss').format(DateTime.now());
+      request.fields['date'] = DateFormat('yyyy-MM-dd').format(dateTime.value);
+      request.fields['time'] = DateFormat('HH:mm:ss').format(dateTime.value);
       request.fields['lat'] = latitude.value.toString();
       request.fields['long'] = longitude.value.toString();
       request.fields['shift'] = selectedShift.value == 'Shift 1'
@@ -230,28 +338,48 @@ class CreateController extends GetxController {
               : '3';
       request.fields['note'] = noteTextController.text;
 
-      // Tambahkan file photo_vessel
+      // Compress and add photo_vessel with progress tracking
       if (imageFile.value != null) {
+        print("Compressing main image...");
+        final compressedImage = await _compressImage(imageFile.value!);
+        
         final photoVesselFile = await http.MultipartFile.fromPath(
           'photo_vessel',
-          imageFile.value!.path,
-          filename: basename(imageFile.value!.path),
+          compressedImage.path,
+          filename: basename(compressedImage.path),
         );
         request.files.add(photoVesselFile);
+        print("Main image added to request (${await compressedImage.length()} bytes)");
       }
 
-      // Tambahkan file photo_selfie jika ada
+      // Compress and add photo_selfie if available
       if (selfieImageFile.value != null) {
+        print("Compressing selfie image...");
+        final compressedSelfie = await _compressImage(selfieImageFile.value!);
+        
         final photoSelfieFile = await http.MultipartFile.fromPath(
           'photo_selfie',
-          selfieImageFile.value!.path,
-          filename: basename(selfieImageFile.value!.path),
+          compressedSelfie.path,
+          filename: basename(compressedSelfie.path),
         );
         request.files.add(photoSelfieFile);
+        print("Selfie image added to request (${await compressedSelfie.length()} bytes)");
       }
 
-      final streamedResponse = await request.send();
+      print("Sending request to server...");
+      
+      // Send request with timeout
+      final streamedResponse = await request.send().timeout(
+        const Duration(seconds: 60), // 60 seconds timeout
+        onTimeout: () {
+          throw Exception('Upload timeout - connection too slow');
+        },
+      );
+      
       final response = await http.Response.fromStream(streamedResponse);
+      
+      // Close progress dialog
+      Get.back();
      
       if (response.statusCode == 201) {
         Get.snackbar(
@@ -259,9 +387,11 @@ class CreateController extends GetxController {
           'Data berhasil dikirim',
           backgroundColor: Colors.green,
           colorText: Colors.white,
+          duration: const Duration(seconds: 3),
         );
         // Reset form after successful submission
         _resetForm();
+        Get.back(); // Close the create view
         print('Upload sukses: ${response.body}');
       } else {
         Get.snackbar(
@@ -269,19 +399,80 @@ class CreateController extends GetxController {
           'Gagal mengirim data: ${response.statusCode}',
           backgroundColor: Colors.red,
           colorText: Colors.white,
+          duration: const Duration(seconds: 5),
         );
         print('Gagal upload: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
+      // Close progress dialog if still open
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      
+      String errorMessage = 'Terjadi kesalahan: $e';
+      if (e.toString().contains('timeout')) {
+        errorMessage = 'Upload timeout - periksa koneksi internet Anda';
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Tidak dapat terhubung ke server - periksa koneksi internet';
+      }
+      
       Get.snackbar(
         'Error',
-        'Terjadi kesalahan: $e',
+        errorMessage,
         backgroundColor: Colors.red,
         colorText: Colors.white,
+        duration: const Duration(seconds: 5),
       );
       print('Error: $e');
     } finally {
       isSubmitting.value = false;
+    }
+  }
+
+  // Add image compression method
+  Future<File> _compressImage(File imageFile) async {
+    try {
+      print("Starting image compression for: ${imageFile.path}");
+      final originalSize = await imageFile.length();
+      print("Original file size: ${(originalSize / 1024 / 1024).toStringAsFixed(2)} MB");
+      
+      // If file is already small enough, return as is
+      if (originalSize < 2 * 1024 * 1024) { // Less than 2MB
+        print("File is already small, skipping compression");
+        return imageFile;
+      }
+      
+      // Read and decode image
+      final Uint8List imageBytes = await imageFile.readAsBytes();
+      // Keep original dimensions, no resolution reduction
+      final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image image = frameInfo.image;
+      
+      // Convert back to bytes with moderate compression
+      final ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      
+      if (byteData != null) {
+        final Uint8List compressedBytes = byteData.buffer.asUint8List();
+        
+        // Save compressed image
+        final String compressedPath = imageFile.path.replaceAll('.png', '_compressed.png');
+        final File compressedFile = File(compressedPath);
+        await compressedFile.writeAsBytes(compressedBytes);
+        
+        final compressedSize = await compressedFile.length();
+        print("Compressed file size: ${(compressedSize / 1024 / 1024).toStringAsFixed(2)} MB");
+        print("Compression ratio: ${((originalSize - compressedSize) / originalSize * 100).toStringAsFixed(1)}%");
+        
+        return compressedFile;
+      }
+      
+      return imageFile;
+    } catch (e) {
+      print('Error compressing image: $e');
+      return imageFile; // Return original if compression fails
     }
   }
 
@@ -299,17 +490,536 @@ class CreateController extends GetxController {
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80, // Maximum quality (0-100, 100 = max quality)
+      preferredCameraDevice: CameraDevice.rear, // Back camera for main photo
+      maxWidth: 4000, // High resolution
+      maxHeight: 3000, // High resolution
+    );
 
     if (pickedFile != null) {
-      imageFile.value = File(pickedFile.path);
+      // Show loading dialog while processing watermark with Lottie
+      _showLottieLoadingDialog(
+        lottieUrl: LottieAssets.processingAlt,
+        title: 'Memproses foto...',
+        subtitle: 'Menambahkan watermark',
+        width: 80,
+        height: 80,
+      );
+      
+      // Process image with watermark
+      final processedImageFile = await _addWatermarkToImage(File(pickedFile.path));
+      
+      // Close loading dialog
+      Get.back();
+      
+      imageFile.value = processedImageFile;
       captureTime.value = DateFormat(
         'dd/MM/yyyy hh:mm a',
       ).format(DateTime.now());
-      Get.snackbar('Sukses', 'Foto berhasil diambil');
+      
+      // Show preview dialog after processing
+      _showWatermarkPreview(processedImageFile);
     } else {
       Get.snackbar('Gagal', 'Tidak jadi mengambil foto');
     }
+  }
+
+  Future<File> _addWatermarkToImage(File imageFile) async {
+    try {
+      print('Starting watermark process for: ${imageFile.path}');
+      
+      // Read image bytes
+      final Uint8List imageBytes = await imageFile.readAsBytes();
+      print('Image bytes loaded: ${imageBytes.length}');
+      
+      // Decode image
+      final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image originalImage = frameInfo.image;
+      
+      print('Original image size: ${originalImage.width} x ${originalImage.height}');
+      
+      // Create canvas for watermark
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      
+      // Draw original image
+      canvas.drawImage(originalImage, Offset.zero, Paint());
+      
+      // Calculate responsive watermark size based on image dimensions
+      final double imageWidth = originalImage.width.toDouble();
+      final double imageHeight = originalImage.height.toDouble();
+      final double watermarkWidth = imageWidth * 0.8; // 80% of image width
+      final double watermarkHeight = imageHeight * 0.15; // 15% of image height
+      final double margin = imageWidth * 0.05; // 5% margin
+      
+      final Rect watermarkRect = Rect.fromLTWH(
+        margin, // Left margin
+        imageHeight - watermarkHeight - margin, // Bottom position
+        watermarkWidth,
+        watermarkHeight,
+      );
+      
+      print('Watermark rect: ${watermarkRect.toString()}');
+      
+      // Draw semi-transparent background with border
+      final Paint backgroundPaint = Paint()
+        ..color = Colors.black.withOpacity(0.8)
+        ..style = PaintingStyle.fill;
+      
+      final Paint borderPaint = Paint()
+        ..color = Colors.white.withOpacity(0.3)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      
+      final RRect roundedRect = RRect.fromRectAndRadius(
+        watermarkRect,
+        Radius.circular(imageWidth * 0.02), // Responsive radius
+      );
+      
+      canvas.drawRRect(roundedRect, backgroundPaint);
+      canvas.drawRRect(roundedRect, borderPaint);
+      
+      // Prepare text information
+      final DateTime now = DateTime.now();
+      final String timestamp = DateFormat('dd/MM/yyyy HH:mm:ss').format(now);
+      final String latLong = 'Lat: ${latitude.value}\nLong: ${longitude.value}';
+      final String createdAt = 'Created: $timestamp';
+      
+      // Calculate responsive font size
+      final double fontSize = imageWidth * 0.025; // 2.5% of image width
+      print('Font size: $fontSize');
+      
+      // Text style with larger, more visible font
+      final TextStyle textStyle = TextStyle(
+        color: Colors.white,
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+        shadows: [
+          Shadow(
+            blurRadius: 2.0,
+            color: Colors.black.withOpacity(0.8),
+            offset: const Offset(1.0, 1.0),
+          ),
+        ],
+      );
+      
+      final double padding = watermarkWidth * 0.03;
+      
+      // Draw latitude/longitude text
+      final TextPainter latLongPainter = TextPainter(
+        text: TextSpan(text: latLong, style: textStyle),
+        textDirection: ui.TextDirection.ltr,
+        maxLines: 2,
+      );
+      latLongPainter.layout(maxWidth: watermarkWidth - (padding * 2));
+      latLongPainter.paint(
+        canvas,
+        Offset(watermarkRect.left + padding, watermarkRect.top + padding),
+      );
+      
+      // Draw timestamp text
+      final TextPainter timestampPainter = TextPainter(
+        text: TextSpan(text: createdAt, style: textStyle),
+        textDirection: ui.TextDirection.ltr,
+      );
+      timestampPainter.layout(maxWidth: watermarkWidth - (padding * 2));
+      timestampPainter.paint(
+        canvas,
+        Offset(
+          watermarkRect.left + padding, 
+          watermarkRect.top + padding + latLongPainter.height + (padding * 0.5),
+        ),
+      );
+      
+      // Add watermark indicator (small logo/text)
+      final TextPainter indicatorPainter = TextPainter(
+        text: TextSpan(
+          text: '📸 CACOON',
+          style: textStyle.copyWith(
+            fontSize: fontSize * 0.8,
+            color: Colors.yellow,
+          ),
+        ),
+        textDirection: ui.TextDirection.ltr,
+      );
+      indicatorPainter.layout();
+      indicatorPainter.paint(
+        canvas,
+        Offset(
+          watermarkRect.right - indicatorPainter.width - padding,
+          watermarkRect.bottom - indicatorPainter.height - padding,
+        ),
+      );
+      
+      // Convert to image
+      final ui.Picture picture = recorder.endRecording();
+      final ui.Image watermarkedImage = await picture.toImage(
+        originalImage.width,
+        originalImage.height,
+      );
+      
+      print('Watermarked image created');
+      
+      // Convert to bytes
+      final ByteData? byteData = await watermarkedImage.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      
+      if (byteData != null) {
+        final Uint8List pngBytes = byteData.buffer.asUint8List();
+        
+        // Save to temporary file
+        final String tempPath = imageFile.path.replaceAll('.jpg', '_watermarked.png').replaceAll('.jpeg', '_watermarked.png');
+        final File watermarkedFile = File(tempPath);
+        await watermarkedFile.writeAsBytes(pngBytes);
+        
+        print('Watermarked file saved: ${watermarkedFile.path}');
+        print('File size: ${await watermarkedFile.length()} bytes');
+        
+        return watermarkedFile;
+      }
+      
+      print('Failed to convert watermarked image to bytes');
+      return imageFile; // Return original if watermark fails
+    } catch (e) {
+      print('Error adding watermark: $e');
+      return imageFile; // Return original image if watermark fails
+    }
+  }
+
+  void _showWatermarkPreview(File watermarkedFile, {bool isSelfie = false}) {
+    showPreviewDialog.value = true;
+    
+    // Check if file exists and has watermark
+    final bool fileExists = watermarkedFile.existsSync();
+    final bool hasWatermark = watermarkedFile.path.contains('_watermarked');
+    
+    Get.dialog(
+      Dialog(
+        insetPadding: const EdgeInsets.all(20),
+        child: Container(
+          width: Get.width * 0.9,
+          height: Get.height * 0.8,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isSelfie ? Colors.blue : (hasWatermark ? Colors.green : Colors.orange),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isSelfie ? Icons.camera_front : Icons.camera_alt,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        isSelfie ? 'Preview Foto Selfie' : 'Preview Foto Kapal',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        showPreviewDialog.value = false;
+                        Get.back();
+                      },
+                      icon: const Icon(Icons.close, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Image Preview
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      // Status indicator
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(8),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: isSelfie 
+                            ? Colors.blue.withOpacity(0.1) 
+                            : (hasWatermark ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1)),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelfie 
+                              ? Colors.blue 
+                              : (hasWatermark ? Colors.green : Colors.orange),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              isSelfie 
+                                ? Icons.person 
+                                : (hasWatermark ? Icons.check_circle : Icons.warning),
+                              color: isSelfie 
+                                ? Colors.blue 
+                                : (hasWatermark ? Colors.green : Colors.orange),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              isSelfie 
+                                ? 'Foto selfie (tanpa watermark)'
+                                : (hasWatermark 
+                                  ? 'Watermark berhasil ditambahkan' 
+                                  : 'Watermark tidak terdeteksi'),
+                              style: TextStyle(
+                                color: isSelfie 
+                                  ? Colors.blue 
+                                  : (hasWatermark ? Colors.green : Colors.orange),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // Image
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: fileExists 
+                            ? Image.file(
+                                watermarkedFile,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[200],
+                                    child: const Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.error, color: Colors.red, size: 48),
+                                          SizedBox(height: 8),
+                                          Text('Gagal memuat gambar'),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.image_not_supported, color: Colors.grey, size: 48),
+                                      SizedBox(height: 8),
+                                      Text('File tidak ditemukan'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                        ),
+                      ),
+                      
+                      // File info
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(8),
+                        margin: const EdgeInsets.only(top: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'File: ${watermarkedFile.path.split('/').last}\nSize: ${fileExists ? '${(watermarkedFile.lengthSync() / 1024 / 1024).toStringAsFixed(2)} MB' : 'Unknown'}',
+                          style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Info Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          isSelfie 
+                            ? Icons.check_circle 
+                            : (hasWatermark ? Icons.check_circle : Icons.info), 
+                          color: isSelfie 
+                            ? Colors.blue 
+                            : (hasWatermark ? Colors.green : Colors.blue), 
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          isSelfie 
+                            ? 'Foto selfie berhasil diambil!'
+                            : (hasWatermark 
+                              ? 'Watermark berhasil ditambahkan!'
+                              : 'Foto diproses tanpa watermark'),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isSelfie 
+                              ? Colors.blue 
+                              : (hasWatermark ? Colors.green : Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    // Details
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Detail Informasi:',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (!isSelfie) ...[
+                            _buildInfoRow('📍 Lokasi', 'Lat: ${latitude.value}, Long: ${longitude.value}'),
+                            const SizedBox(height: 4),
+                          ],
+                          _buildInfoRow('⏰ Waktu', DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now())),
+                          const SizedBox(height: 4),
+                          _buildInfoRow('📸 Jenis', isSelfie ? 'Foto Selfie' : 'Foto Kapal'),
+                          const SizedBox(height: 4),
+                          _buildInfoRow('🏷️ Status', isSelfie ? 'Tanpa Watermark' : (hasWatermark ? 'Dengan Watermark' : 'Tanpa Watermark')),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Action Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              showPreviewDialog.value = false;
+                              Get.back();
+                              // Retake photo
+                              if (isSelfie) {
+                                pickSelfieImage();
+                              } else {
+                                pickImage();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Foto Ulang'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              showPreviewDialog.value = false;
+                              Get.back();
+                              Get.snackbar(
+                                'Sukses', 
+                                isSelfie 
+                                  ? 'Foto selfie berhasil diambil (tanpa watermark)'
+                                  : 'Foto berhasil diambil dan diproses',
+                                backgroundColor: Colors.green,
+                                colorText: Colors.white,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Gunakan Foto'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
+        const Text(': ', style: TextStyle(fontSize: 12)),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Future<bool> _requestCameraPermission() async {
@@ -360,5 +1070,83 @@ class CreateController extends GetxController {
   String get currentLocationText {
     if (currentPosition.value == null) return 'Location not available';
     return 'Lat: ${currentPosition.value!.latitude}, Long: ${currentPosition.value!.longitude}';
+  }
+
+  // Helper method to show Lottie loading dialog
+  void _showLottieLoadingDialog({
+    required String lottieUrl,
+    required String title,
+    required String subtitle,
+    double width = 80,
+    double height = 80,
+  }) {
+    Get.dialog(
+      WillPopScope(
+        onWillPop: () async => false, // Prevent back button
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Lottie animation
+                Lottie.network(
+                  lottieUrl,
+                  width: width,
+                  height: height,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback to CircularProgressIndicator if Lottie fails
+                    return SizedBox(
+                      width: width,
+                      height: height,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 }

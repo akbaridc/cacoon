@@ -12,6 +12,19 @@ class CreateView extends GetView<CreateController> {
 
   @override
   Widget build(BuildContext context) {
+    // Debug arguments di view
+    print("CREATE VIEW - Arguments received: ${Get.arguments}");
+    print("CREATE VIEW - Arguments type: ${Get.arguments.runtimeType}");
+    
+    // Pass arguments to controller manually
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.arguments != null) {
+        controller.handleArguments(Get.arguments);
+      }else {
+        controller.handleArguments({});
+      }
+    });
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -50,12 +63,14 @@ class CreateView extends GetView<CreateController> {
                       : 'Nama belum diisi',
                 ),
 
-                _buildInfoTile(
-                  Icons.calendar_today,
-                  DateFormat(
-                    'dd MMMM yyyy hh:mm a',
-                  ).format(controller.dateTime.value),
-                ),
+                Obx((){
+                  return _buildInfoTile(
+                    Icons.calendar_today,
+                    DateFormat(
+                      'dd MMMM yyyy hh:mm a',
+                    ).format(controller.dateTime.value),
+                  );
+                }),
 
                 _buildInfoTile(
                   Icons.location_on,
@@ -149,45 +164,13 @@ class CreateView extends GetView<CreateController> {
                 color: Colors.grey[300],
               ),
               child: controller.imageFile.value != null
-                  ? Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            controller.imageFile.value!,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            color: Colors.black54,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  controller.currentLocationText,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                Text(
-                                  'Captured: ${controller.captureTime.value}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
+                  ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      controller.imageFile.value!,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                   : const Center(
                       child: Icon(
                         Icons.camera_alt,

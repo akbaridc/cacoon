@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:cacoon_mobile/app/routes/app_pages.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
+import 'package:cacoon_mobile/constants/lottie_assets.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 
 class VerifyOtpController extends GetxController {
   late final String email;
@@ -14,6 +16,60 @@ class VerifyOtpController extends GetxController {
   var isLoading = false.obs;
   var timerCount = 60.obs;
   Timer? _timer;
+
+  void _showLottieLoadingDialog(String message, String subtitle) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 120,
+                height: 120,
+                child: Lottie.network(
+                  LottieAssets.processingAlt,
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0E3A34)),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0E3A34),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
 
   void startTimer() {
     timerCount.value = 60;
@@ -30,6 +86,13 @@ class VerifyOtpController extends GetxController {
   Future<void> resendOtp() async {
     print("Resend OTP triggered!");
     startTimer();
+    
+    // Show Lottie loading dialog
+    _showLottieLoadingDialog(
+      'Mengirim ulang OTP...',
+      'Mohon tunggu sebentar'
+    );
+    
     try {
       var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.login}';
       var headers = {
@@ -43,6 +106,10 @@ class VerifyOtpController extends GetxController {
         headers: headers,
         body: body,
       );
+      
+      // Close loading dialog
+      Get.back();
+      
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
 
@@ -57,6 +124,9 @@ class VerifyOtpController extends GetxController {
         );
       }
     } catch (e) {
+      // Close loading dialog
+      Get.back();
+      
       ScaffoldMessenger.of(Get.context!).showSnackBar(
         SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
       );
@@ -65,7 +135,12 @@ class VerifyOtpController extends GetxController {
   }
 
   Future<void> verifyOtp() async {
-    isLoading.value = true;
+    // Show Lottie loading dialog
+    _showLottieLoadingDialog(
+      'Memverifikasi OTP...',
+      'Mohon tunggu sebentar'
+    );
+    
     await Future.delayed(Duration(seconds: 2)); // Simulasi API
     print('Verifying OTP: ${otpCode.value}');
 
@@ -84,6 +159,10 @@ class VerifyOtpController extends GetxController {
       );
       var data = jsonDecode(response.body);
       print(data['user']);
+      
+      // Close loading dialog
+      Get.back();
+      
       if (response.statusCode == 200) {
         await SessionHelper.saveLoginSession(
           data['user']['id'],
@@ -100,19 +179,19 @@ class VerifyOtpController extends GetxController {
         ).showSnackBar(SnackBar(content: Text("Token berhasil diverifikasi!")));
         // Arahkan ke halaman verifikasi OTP
         Get.offAllNamed(Routes.NAVIGATION_BAR);
-        isLoading.value = false;
       } else {
         ScaffoldMessenger.of(
           Get.context!,
         ).showSnackBar(SnackBar(content: Text("${data['message']}")));
-        isLoading.value = false;
       }
     } catch (e) {
+      // Close loading dialog
+      Get.back();
+      
       ScaffoldMessenger.of(Get.context!).showSnackBar(
         SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
       );
       print(e);
-      isLoading.value = false;
       return;
     }
 

@@ -41,6 +41,104 @@ class HomeView extends GetView<HomeController> {
     }
   }
 
+  Widget _buildSkeletonLoading() {
+    return ListView(
+      children: [
+        _buildStoriesSkeleton(),
+        ..._buildPostsSkeleton(),
+      ],
+    );
+  }
+
+  Widget _buildStoriesSkeleton() {
+    return SizedBox(
+      height: 100,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        scrollDirection: Axis.horizontal,
+        itemCount: 8, // Show 8 skeleton stories
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          return Column(
+            children: [
+              _buildSkeletonCircle(60), // diameter 60
+              const SizedBox(height: 4),
+              _buildSkeletonBox(50, 12), // width 50, height 12
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  List<Widget> _buildPostsSkeleton() {
+    return List.generate(3, (index) => _buildPostSkeleton());
+  }
+
+  Widget _buildPostSkeleton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          leading: _buildSkeletonCircle(50), // diameter 50
+          title: _buildSkeletonBox(120, 16),
+          subtitle: _buildSkeletonBox(80, 14),
+        ),
+        _buildSkeletonBox(double.infinity, 200), // Image placeholder
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSkeletonBox(double.infinity, 16),
+              const SizedBox(height: 4),
+              _buildSkeletonBox(250, 16),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget _buildSkeletonCircle(double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey.shade300,
+            Colors.grey.shade200,
+            Colors.grey.shade300,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+
+  Widget _buildSkeletonBox(double width, double height) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey.shade300,
+            Colors.grey.shade200,
+            Colors.grey.shade300,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,27 +152,34 @@ class HomeView extends GetView<HomeController> {
         ),
         backgroundColor: const Color(0xFF0E3A34),
       ),
-      body: Obx(() => RefreshIndicator(
-            onRefresh: controller.refreshBoat,
-            child: ListView.builder(
-              controller: controller.scrollController,
-              itemCount: controller.vesselPostData.length + 2, // +2 for stories and loading indicator
-              itemBuilder: (context, index) {
-                if (index == 0) return _buildStories();
-                if (index <= controller.vesselPostData.length) {
-                  final post = controller.vesselPostData[index - 1];
-                  return _buildPostItem(post);
-                }
-                // Loading indicator at the end
-                return controller.isLoadingMore.value
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24.0),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : const SizedBox();
-              },
-            ),
-          )),
+      body: Obx(() {
+        // Show skeleton loading when initially loading data
+        if (controller.isLoading.value && controller.vesselPostData.isEmpty) {
+          return _buildSkeletonLoading();
+        }
+        
+        return RefreshIndicator(
+          onRefresh: controller.refreshBoat,
+          child: ListView.builder(
+            controller: controller.scrollController,
+            itemCount: controller.vesselPostData.length + 2, // +2 for stories and loading indicator
+            itemBuilder: (context, index) {
+              if (index == 0) return _buildStories();
+              if (index <= controller.vesselPostData.length) {
+                final post = controller.vesselPostData[index - 1];
+                return _buildPostItem(post);
+              }
+              // Loading indicator at the end
+              return controller.isLoadingMore.value
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : const SizedBox();
+            },
+          ),
+        );
+      }),
     );
   }
 

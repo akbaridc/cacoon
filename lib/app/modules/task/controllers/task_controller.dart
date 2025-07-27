@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cacoon_mobile/app/data/boat_model.dart';
@@ -16,6 +17,7 @@ class TaskController extends GetxController {
   var name = ''.obs;
 
   final scrollController = ScrollController();
+  Timer? _debounceTimer;
 
   @override
   void onInit() async{
@@ -88,13 +90,22 @@ class TaskController extends GetxController {
   @override
   void onClose() {
     scrollController.dispose();
+    _debounceTimer?.cancel();
     super.onClose();
   }
 
   void setKeyword(String keyword) {
     searchQuery.value = keyword;
-    currentPage = 1;
-    boats.clear();
-    fetchBoat();
+    
+    // Cancel previous timer if it exists
+    _debounceTimer?.cancel();
+    
+    // Create new timer with 500ms delay
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      print("Searching for: $keyword");
+      currentPage = 1;
+      boats.clear();
+      fetchBoat();
+    });
   }
 }
