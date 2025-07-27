@@ -1,9 +1,22 @@
+import 'package:cacoon_mobile/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../controllers/search_boat_controller.dart';
 
-class SearchBoatView extends GetView<SearchBoatController> {
-  const SearchBoatView({super.key});
+import 'package:get/get.dart';
+
+import '../controllers/task_controller.dart';
+
+class TaskView extends GetView<TaskController> {
+  const TaskView({super.key});
+
+  Future<ImageProvider> _loadImage(String url) async {
+    try {
+      final image = NetworkImage(url);
+      await precacheImage(image, Get.context!);
+      return image;
+    } catch (e) {
+      throw Exception('Failed to load image');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +33,11 @@ class SearchBoatView extends GetView<SearchBoatController> {
       ),
       body: SafeArea(
         child: Column(
-
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
+           
             Padding(
-              
               padding: const EdgeInsets.all(16),
               child: TextField(
                 onChanged: controller.setKeyword,
@@ -66,32 +78,40 @@ class SearchBoatView extends GetView<SearchBoatController> {
                         itemBuilder: (context, index) {
                           if (index < controller.boats.length) {
                             final boat = controller.boats[index];
-                            return Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    'https://placehold.co/100x100',
-                                    height: 100,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
+                            return GestureDetector(
+                              onTap: () {
+                                Get.toNamed(
+                                  Routes.DETAIL_TASK,
+                                  arguments: boat,
+                                );
+                              },
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.network(
+                                      'https://placehold.co/100x100',
                                       height: 100,
                                       width: double.infinity,
-                                      color: Colors.grey.shade300,
-                                      child: const Icon(Icons.broken_image),
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        height: 100,
+                                        width: double.infinity,
+                                        color: Colors.grey.shade300,
+                                        child: const Icon(Icons.broken_image),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  boat.vslName,
-                                  style: const TextStyle(fontSize: 12),
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ],
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    boat.vslName,
+                                    style: const TextStyle(fontSize: 12),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ],
+                              ),
                             );
                           } else {
                             return Obx(

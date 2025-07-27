@@ -7,25 +7,25 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class LoginController extends GetxController {
-  final emailController = TextEditingController(text: 'ryan@gmail.com');
-  final passwordController = TextEditingController(text: '12345678');
+  final emailController = TextEditingController(text: 'ryanhartadi06@gmail.com');
+  // final passwordController = TextEditingController(text: '12345678');
 var isLoading = false.obs;
-  final isPasswordHidden = true.obs;
+  // final isPasswordHidden = true.obs;
 
-  void togglePasswordVisibility() {
-    isPasswordHidden.value = !isPasswordHidden.value;
-  }
+  // void togglePasswordVisibility() {
+  //   isPasswordHidden.value = !isPasswordHidden.value;
+  // }
 
   Future<void> login() async {
     isLoading.value = true;
     final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+    // final password = passwordController.text.trim();
 
-    print('Login attempt with email: $email and password: $password');
+    // print('Login attempt with email: $email and password: $password');
 
-    if (email.isEmpty || password.isEmpty) {
+    if (email.isEmpty) {
       ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(content: Text("Email dan password tidak boleh kosong")),
+        SnackBar(content: Text("Email tidak boleh kosong")),
       );
       isLoading.value = false;
       return;
@@ -64,6 +64,7 @@ var isLoading = false.obs;
         SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
       );
       isLoading.value = false;
+      print('Error during login: $e');
       return;
     }
   }

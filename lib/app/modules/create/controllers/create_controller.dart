@@ -39,6 +39,17 @@ class CreateController extends GetxController {
   var isErrorShift = false.obs;
   var errorMessageShift = ''.obs;
 
+var selfieImageFile = Rxn<File>();
+
+Future<void> pickSelfieImage() async {
+  await _determinePosition();
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+  if (pickedFile != null) {
+    selfieImageFile.value = File(pickedFile.path);
+  }
+}
   @override
   void onInit() async {
     super.onInit();
@@ -86,7 +97,7 @@ class CreateController extends GetxController {
       isErrorBoat.value = false;
       errorMessageBoat.value = '';
 
-      var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.boat}?page=$page';
+      var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.vessel}?page=$page';
       String token = await SessionHelper.getAccessToken();
 
       var headers = {

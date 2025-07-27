@@ -1,25 +1,28 @@
 import 'dart:convert';
-import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 
 import 'package:cacoon_mobile/app/data/boat_model.dart';
+import 'package:cacoon_mobile/app/data/task_model.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
-class SearchBoatController extends GetxController {
-  var boats = <Boat>[].obs;
+class TaskController extends GetxController {
+ var boats = <Boat>[].obs;
   var currentPage = 1;
   var lastPage = 1;
   var isLoadingMore = false.obs;
   final searchQuery = ''.obs;
+  var name = ''.obs;
 
   final scrollController = ScrollController();
 
   @override
-  void onInit() {
+  void onInit() async{
     super.onInit();
     fetchBoat();
+    name.value = await SessionHelper.getName();
     scrollController.addListener(_scrollListener);
   }
 
@@ -39,12 +42,10 @@ class SearchBoatController extends GetxController {
 
   Future<void> fetchBoat({int page = 1}) async {
   try {
-    String url = '${ApiEndpoint.baseUrl}${ApiEndpoint.vessel}?page=$page&limit=25';
+    String url = '${ApiEndpoint.baseUrl}${ApiEndpoint.vessel}?page=$page&limit=25&type=Loading';
     if (searchQuery.isNotEmpty) {
       url += '&search=$searchQuery'; // Sesuaikan dengan parameter di backend-mu
     }
-        print("Fetching Boat from: $url");
-
     String token = await SessionHelper.getAccessToken();
 
     var headers = {
@@ -90,9 +91,9 @@ class SearchBoatController extends GetxController {
     scrollController.dispose();
     super.onClose();
   }
+
   void setKeyword(String keyword) {
     searchQuery.value = keyword;
-    print("Searching for: $keyword");
     currentPage = 1;
     boats.clear();
     fetchBoat();

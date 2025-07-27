@@ -12,6 +12,9 @@ abstract class Routes {
   static const SEARCH_BOAT = _Paths.SEARCH_BOAT;
   static const NAVIGATION_BAR = _Paths.NAVIGATION_BAR;
   static const VERIFY_OTP = _Paths.VERIFY_OTP;
+  static const TASK = _Paths.TASK;
+  static const DETAIL_BOAT = _Paths.DETAIL_BOAT;
+  static const DETAIL_TASK = _Paths.DETAIL_TASK;
 }
 
 abstract class _Paths {
@@ -25,4 +28,7 @@ abstract class _Paths {
   static const SEARCH_BOAT = '/search-boat';
   static const NAVIGATION_BAR = '/navigation-bar';
   static const VERIFY_OTP = '/verify-otp';
+  static const TASK = '/task';
+  static const DETAIL_BOAT = '/detail-boat';
+  static const DETAIL_TASK = '/detail-task';
 }

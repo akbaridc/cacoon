@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 
 import '../modules/create/bindings/create_binding.dart';
 import '../modules/create/views/create_view.dart';
+import '../modules/detail_boat/bindings/detail_boat_binding.dart';
+import '../modules/detail_boat/views/detail_boat_view.dart';
+import '../modules/detail_task/bindings/detail_task_binding.dart';
+import '../modules/detail_task/views/detail_task_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/login/bindings/login_binding.dart';
@@ -14,8 +18,8 @@ import '../modules/search_boat/bindings/search_boat_binding.dart';
 import '../modules/search_boat/views/search_boat_view.dart';
 import '../modules/splash_page/bindings/splash_page_binding.dart';
 import '../modules/splash_page/views/splash_page_view.dart';
-import '../modules/users/bindings/users_binding.dart';
-import '../modules/users/views/users_view.dart';
+import '../modules/task/bindings/task_binding.dart';
+import '../modules/task/views/task_view.dart';
 import '../modules/verify_otp/bindings/verify_otp_binding.dart';
 import '../modules/verify_otp/views/verify_otp_view.dart';
 
@@ -48,11 +52,6 @@ class AppPages {
       binding: CreateBinding(),
     ),
     GetPage(
-      name: _Paths.USERS,
-      page: () => const UsersView(),
-      binding: UsersBinding(),
-    ),
-    GetPage(
       name: _Paths.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
@@ -71,6 +70,21 @@ class AppPages {
       name: _Paths.VERIFY_OTP,
       page: () => const VerifyOtpView(),
       binding: VerifyOtpBinding(),
+    ),
+    GetPage(
+      name: _Paths.TASK,
+      page: () => const TaskView(),
+      binding: TaskBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_BOAT,
+      page: () => const DetailBoatView(),
+      binding: DetailBoatBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL_TASK,
+      page: () => const DetailTaskView(),
+      binding: DetailTaskBinding(),
     ),
   ];
 }

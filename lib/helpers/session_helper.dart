@@ -10,12 +10,6 @@ class SessionHelper {
   static const phoneNumber = "PHONE_NUMBER";
   static const accessToken = "ACCESS_TOKEN";
   static const avatarImage = "AVATAR_IMAGE";
-  static const unitKerjaName = "UNIT_KERJA_NAME";
-  static const pGrade = "P_GRADE";
-  static const jobGrade = "JOB_GRADE";
-  static const jobId = "JOB_ID";
-  static const jobTitle = "JOB_TITLE";
-  static const department = "DEPARTMENT";
   static const postTitle = "POST_TITLE";
 
   static Future<bool> checkIsLogin() async {
@@ -58,30 +52,6 @@ class SessionHelper {
     return prefs.getString(avatarImage) ?? "";
   }
 
-  static Future<String> getUnitKerjaName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(unitKerjaName) ?? "";
-  }
-  static Future<String> getPGrade() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(pGrade) ?? "";
-  }
-  static Future<String> getJobGrade() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(jobGrade) ?? "";
-  }
-  static Future<String> getJobId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(jobId) ?? "";
-  }
-  static Future<String> getJobTitle() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(jobTitle) ?? "";
-  }
-  static Future<String> getDepartment() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(department) ?? "";
-  }
   static Future<String> getPostTitle() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(postTitle) ?? "";
@@ -94,12 +64,6 @@ class SessionHelper {
     String nameValue,
     String accessTokenValue,
     String? avatarImageValue,
-    String? unitKerjaNameValue,
-    String? pGradeValue,
-    String? jobGradeValue,
-    String? jobIdValue,
-    String? jobTitleValue,
-    String? departmentValue,
     String? postTitleValue,
 
   ) async {
@@ -110,12 +74,6 @@ class SessionHelper {
     await prefs.setString(name, nameValue);
     await prefs.setString(accessToken, accessTokenValue);
     await prefs.setString(avatarImage, avatarImageValue ?? "");
-    await prefs.setString(unitKerjaName, unitKerjaNameValue ?? "");
-    await prefs.setString(pGrade, pGradeValue ?? "");
-    await prefs.setString(jobGrade, jobGradeValue ?? "");
-    await prefs.setString(jobId, jobIdValue ?? "");
-    await prefs.setString(jobTitle, jobTitleValue ?? "");
-    await prefs.setString(department, departmentValue ?? "");
     await prefs.setString(postTitle, postTitleValue ?? "");
     return prefs.setBool(isLogin, true);
   }

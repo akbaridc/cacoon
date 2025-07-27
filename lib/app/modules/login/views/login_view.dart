@@ -46,21 +46,6 @@ class LoginView extends GetView<LoginController> {
                   ),
                   const SizedBox(height: 20),
 
-                  Text(
-                    'Password',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => _buildInputField(
-                      hint: "Masukkan password Anda",
-                      controller: controller.passwordController,
-                      isPassword: true,
-                      obscureText: controller.isPasswordHidden.value,
-                      toggleVisibility: controller.togglePasswordVisibility,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
                   Obx(
                     () => controller.isLoading.value
                         ? Center(child: CircularProgressIndicator(color: Colors.tealAccent))

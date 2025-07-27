@@ -1,10 +1,10 @@
 import 'package:cacoon_mobile/app/modules/create/views/create_view.dart';
 import 'package:cacoon_mobile/app/modules/navigation_bar/controllers/navigation_bar_controller.dart';
 import 'package:cacoon_mobile/app/modules/search_boat/views/search_boat_view.dart';
+import 'package:cacoon_mobile/app/modules/task/views/task_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../home/views/home_view.dart';
-import '../../users/views/users_view.dart';
 import '../../profile/views/profile_view.dart';
 
 class MainNavigationBarView extends GetView<NavigationBarController> {
@@ -14,7 +14,7 @@ class MainNavigationBarView extends GetView<NavigationBarController> {
     const HomeView(),
     const SearchBoatView(),
     const CreateView(),
-    const UsersView(),
+    const TaskView(),
     const ProfileView(),
   ];
 

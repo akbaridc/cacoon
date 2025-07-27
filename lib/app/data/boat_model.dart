@@ -9,41 +9,65 @@ List<Boat> boatFromJson(String str) => List<Boat>.from(json.decode(str).map((x) 
 String boatToJson(List<Boat> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Boat {
-    int id;
-    String name;
-    String type;
-    String image;
+    int vslId;
+    String vslCode;
+    String vslName;
+    String vslArrivalType;
+    String vslSurveyDraught;
+    String vslContractTonnage;
+    String vslCargoName;
+    String vslDestination;
+    DateTime? vslEstTimeArrival;
+    DateTime? vslTimeBerthing;
+    DateTime? vslTimeUnberthing;
     DateTime createdAt;
     DateTime updatedAt;
-    String imageUrl;
 
     Boat({
-        required this.id,
-        required this.name,
-        required this.type,
-        required this.image,
+        required this.vslId,
+        required this.vslCode,
+        required this.vslName,
+        required this.vslArrivalType,
+        required this.vslSurveyDraught,
+        required this.vslContractTonnage,
+        required this.vslCargoName,
+        required this.vslDestination,
+        required this.vslEstTimeArrival,
+        required this.vslTimeBerthing,
+        required this.vslTimeUnberthing,
         required this.createdAt,
         required this.updatedAt,
-        required this.imageUrl,
     });
 
     factory Boat.fromJson(Map<String, dynamic> json) => Boat(
-        id: json["id"],
-        name: json["name"],
-        type: json["type"],
-        image: json["image"],
+        vslId: json["vsl_id"],
+        vslCode: json["vsl_code"],
+        vslName: json["vsl_name"],
+        vslArrivalType: json["vsl_arrival_type"],
+        vslSurveyDraught: json["vsl_survey_draught"],
+        vslContractTonnage: json["vsl_contract_tonnage"],
+        vslCargoName: json["vsl_cargo_name"],
+        vslDestination: json["vsl_destination"],
+        vslEstTimeArrival: json["vsl_est_time_arrival"] == null ? null : DateTime.parse(json["vsl_est_time_arrival"]),
+        vslTimeBerthing: json["vsl_time_berthing"] == null ? null : DateTime.parse(json["vsl_time_berthing"]),
+        vslTimeUnberthing: json["vsl_time_unberthing"] == null ? null : DateTime.parse(json["vsl_time_unberthing"]),
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
-        imageUrl: json["image_url"],
     );
 
     Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "type": type,
-        "image": image,
+        "vsl_id": vslId,
+        "vsl_code": vslCode,
+        "vsl_name": vslName,
+        "vsl_arrival_type": vslArrivalType,
+        "vsl_survey_draught": vslSurveyDraught,
+        "vsl_contract_tonnage": vslContractTonnage,
+        "vsl_cargo_name": vslCargoName,
+        "vsl_destination": vslDestination,
+        "vsl_est_time_arrival": vslEstTimeArrival?.toIso8601String(),
+        "vsl_time_berthing": vslTimeBerthing?.toIso8601String(),
+        "vsl_time_unberthing": vslTimeUnberthing?.toIso8601String(),
         "created_at": createdAt.toIso8601String(),
         "updated_at": updatedAt.toIso8601String(),
-        "image_url": imageUrl,
     };
 }

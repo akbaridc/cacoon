@@ -14,20 +14,10 @@ class CreateView extends GetView<CreateController> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(
-            children: [
-              Text(
-                "CACOON",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.5,
-                ),
-              ),
-            ],
+            children: [Image.asset('assets/logo.png', width: 100, height: 100)],
           ),
         ),
         backgroundColor: const Color(0xFF0E3A34),
@@ -181,18 +171,18 @@ class CreateView extends GetView<CreateController> {
             value: controller.selectedBoat.value.isEmpty
                 ? null
                 : controller.boats.firstWhere(
-                    (boat) => boat.name == controller.selectedBoat.value,
+                    (boat) => boat.vslName == controller.selectedBoat.value,
                     orElse: () => controller.boats.first,
                   ),
             onChanged: (Boat? value) {
               if (value != null) {
-                controller.setSelectedBoat(value.name);
+                controller.setSelectedBoat(value.vslName);
               }
             },
             items: controller.boats.map((boat) {
               return DropdownMenuItem<Boat>(
                 value: boat,
-                child: Text(boat.name, style: TextStyle(fontSize: 16)),
+                child: Text(boat.vslName, style: TextStyle(fontSize: 16)),
               );
             }).toList(),
           ),

@@ -92,18 +92,9 @@ class VerifyOtpController extends GetxController {
           data['user']['name'],
           data['access_token'],
           data['user']['avatar'] ?? '',
-          data['user']['employee']['work_unit_name'] ?? '',
-
-          data['user']['employee']['position_grade'] ?? '',
-
-          data['user']['employee']['job_grade'] ?? '',
-          data['user']['employee']['job_id'] ?? '',
-          data['user']['employee']['job_title'] ?? '',
-          data['user']['employee']['department_name'] ?? '',
-          data['user']['employee']['position_title'] ?? '',
+          data['user']['position_title'] ?? '',
         );
 
-        print(await SessionHelper.getAccessToken());
         ScaffoldMessenger.of(
           Get.context!,
         ).showSnackBar(SnackBar(content: Text("Token berhasil diverifikasi!")));
@@ -120,6 +111,8 @@ class VerifyOtpController extends GetxController {
       ScaffoldMessenger.of(Get.context!).showSnackBar(
         SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
       );
+      print(e);
+      isLoading.value = false;
       return;
     }
 

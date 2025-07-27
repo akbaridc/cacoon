@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'package:cacoon_mobile/app/data/vessel_post_model.dart';
+import 'package:cacoon_mobile/constants/api_endpoint.dart';
+import 'package:cacoon_mobile/helpers/session_helper.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
   final stories = [
@@ -15,33 +20,96 @@ class HomeController extends GetxController {
     {'name': 'Lucas', 'profileImage': 'https://placehold.co/100x100'},
   ];
 
-  final posts = [
-    {
-      'name': 'Liam Carter',
-      'profileImage': 'https://placehold.co/100x100',
-      'time': '1d ago',
-      'postImage': 'https://picsum.photos/seed/picsum/200/300', // Bisa ganti pakai gambar kamu
-      'likes': 234,
-      'caption': 'Exploring the beauty of modern interior design. #interiordesign #homedecor',
-      'comments': 12,
-    },
-    {
-      'name': 'Emma Johnson',
-      'profileImage': 'https://placehold.co/100x100',
-      'time': '2d ago',
-      'postImage': 'https://picsum.photos/seed/picsum/200/300', // Bisa ganti pakai gambar kamu
-      'likes': 150,
-      'caption': 'A cozy corner for reading and relaxation. #cozycorner #readingnook',
-      'comments': 5,
-    },
-    {      'name': 'Olivia Brown',
-      'profileImage': 'https://placehold.co/100x100',
-      'time': '3d ago',
-      'postImage': 'https://picsum.photos/seed/picsum/200/300', // Bisa ganti pakai gambar kamu
-      'likes': 300,
-      'caption': 'Nature-inspired decor for a fresh look. #naturedecor #freshvibes',
-      'comments': 20,
-    },
-    // Tambahkan post lain jika perlu
-  ];
+  var vesselPostData = <VesselPost>[].obs;
+  var currentPage = 1;
+  var lastPage = 1;
+  var isLoadingMore = false.obs;
+
+  final scrollController = ScrollController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchData();
+    print("Fetching data for the first time");
+    scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> refreshBoat() async {
+    currentPage = 1;
+    vesselPostData.clear();
+    await fetchData();
+  }
+
+  void _scrollListener() {
+    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+      if (!isLoadingMore.value && currentPage < lastPage) {
+        loadMore();
+      }
+    }
+  }
+
+Future<void> fetchData({int page = 1}) async {
+  try {
+    print("page: $page");
+    var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.postVessel}?page=$page';
+    String token = await SessionHelper.getAccessToken();
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    var response = await http.get(Uri.parse(url), headers: headers);
+
+    if (response.statusCode == 200) {
+      final jsonResult = json.decode(response.body);
+
+      // ✅ Validasi bahwa "data" adalah List
+      if (jsonResult is! Map || jsonResult['data'] is! List) {
+        return;
+      }
+
+      // ✅ Ambil pagination dari "meta"
+      final meta = jsonResult['meta'];
+      currentPage = meta['page'] ?? 1;
+      lastPage = meta['last_page'] ?? 1;
+
+      final List<dynamic> dataList = jsonResult['data'];
+
+      List<VesselPost> fetchVesselPost = dataList
+          .map<VesselPost>((item) => VesselPost.fromJson(item))
+          .toList();
+
+      if (page == 1) {
+        vesselPostData.value = fetchVesselPost;
+      } else {
+        vesselPostData.addAll(fetchVesselPost);
+      }
+    } else if (response.statusCode == 401) {
+      Get.snackbar('Unauthorized', 'Please login again');
+      SessionHelper.clearSession();
+      Get.offAllNamed('/login');
+    } else {
+      print("Failed to fetch data. Status code: ${response.statusCode}");
+    }
+  } catch (e) {
+    print('Error during fetchData: $e');
+  }
+}
+
+  Future<void> loadMore() async {
+    if (currentPage < lastPage) {
+      isLoadingMore.value = true;
+      await fetchData(page: currentPage + 1);
+      isLoadingMore.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
 }
