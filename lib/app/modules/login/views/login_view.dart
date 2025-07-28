@@ -40,7 +40,7 @@ class LoginView extends GetView<LoginController> {
                   Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   _buildInputField(
-                    hint: "Masukkan email Anda",
+                    hint: "Masukkan Email / NIK Anda",
                     controller: controller.emailController,
                     isPassword: false,
                   ),

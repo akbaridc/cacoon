@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cacoon_mobile/app/routes/app_pages.dart';
+import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/constants/lottie_assets.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
@@ -16,6 +17,9 @@ class VerifyOtpController extends GetxController {
   var isLoading = false.obs;
   var timerCount = 60.obs;
   Timer? _timer;
+
+  // Error logging service
+  final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
 
   void _showLottieLoadingDialog(String message, String subtitle) {
     Get.dialog(
@@ -119,6 +123,17 @@ class VerifyOtpController extends GetxController {
         // Arahkan ke halaman verifikasi OTP
      
       } else {
+        // Log auth error for resend OTP failure
+        await _errorLoggingService.logAuthError(
+          errorMessage: 'Resend OTP failed with status ${response.statusCode}',
+          feature: 'resend_otp',
+          additionalData: {
+            'email': email,
+            'statusCode': response.statusCode,
+            'responseBody': response.body,
+          },
+        );
+        
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(content: Text("Login gagal, silakan coba lagi")),
         );
@@ -127,8 +142,20 @@ class VerifyOtpController extends GetxController {
       // Close loading dialog
       Get.back();
       
+      // Determine error type and log using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+      final userFriendlyMessage = _errorLoggingService.getUserFriendlyMessage(errorType);
+      
+      await _errorLoggingService.logError(
+        errorType: errorType,
+        errorMessage: e.toString(),
+        feature: 'resend_otp',
+        additionalData: {'email': email},
+        stackTrace: StackTrace.current.toString(),
+      );
+      
       ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
+        SnackBar(content: Text(userFriendlyMessage)),
       );
       return;
     }
@@ -158,6 +185,7 @@ class VerifyOtpController extends GetxController {
         body: body,
       );
       var data = jsonDecode(response.body);
+    
       print(data['user']);
       
       // Close loading dialog
@@ -180,6 +208,18 @@ class VerifyOtpController extends GetxController {
         // Arahkan ke halaman verifikasi OTP
         Get.offAllNamed(Routes.NAVIGATION_BAR);
       } else {
+        // Log auth error for OTP verification failure
+        await _errorLoggingService.logAuthError(
+          errorMessage: 'OTP verification failed with status ${response.statusCode}',
+          feature: 'verify_otp',
+          additionalData: {
+            'email': email,
+            'otp_code': otpCode.value,
+            'statusCode': response.statusCode,
+            'responseBody': response.body,
+          },
+        );
+        
         ScaffoldMessenger.of(
           Get.context!,
         ).showSnackBar(SnackBar(content: Text("${data['message']}")));
@@ -188,8 +228,23 @@ class VerifyOtpController extends GetxController {
       // Close loading dialog
       Get.back();
       
+      // Determine error type and log using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+      final userFriendlyMessage = _errorLoggingService.getUserFriendlyMessage(errorType);
+      
+      await _errorLoggingService.logError(
+        errorType: errorType,
+        errorMessage: e.toString(),
+        feature: 'verify_otp',
+        additionalData: {
+          'email': email,
+          'otp_code': otpCode.value,
+        },
+        stackTrace: StackTrace.current.toString(),
+      );
+      
       ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
+        SnackBar(content: Text(userFriendlyMessage)),
       );
       print(e);
       return;

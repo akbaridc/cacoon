@@ -19,7 +19,7 @@ class VesselPost {
     String vpLongitude;
     String? vpLocationName;
     String vpShift;
-    String vpNote;
+    String? vpNote;
     DateTime createdAt;
     DateTime updatedAt;
     String vpPhotoVessel;
@@ -56,7 +56,7 @@ class VesselPost {
         vpLongitude: json["vp_longitude"],
         vpLocationName: json["vp_location_name"],
         vpShift: json["vp_shift"],
-        vpNote: json["vp_note"],
+        vpNote: json["vp_note"] ?? '',
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
         vpPhotoVessel: (json["vp_photo_vessel"] == null || json["vp_photo_vessel"] == "") 

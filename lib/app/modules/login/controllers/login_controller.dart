@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cacoon_mobile/app/routes/app_pages.dart';
+import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/constants/lottie_assets.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +11,10 @@ import 'package:lottie/lottie.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController(text: '');
-  // final passwordController = TextEditingController(text: '12345678');
-var isLoading = false.obs;
-  // final isPasswordHidden = true.obs;
-
-  // void togglePasswordVisibility() {
-  //   isPasswordHidden.value = !isPasswordHidden.value;
-  // }
+  var isLoading = false.obs;
+  
+  // Error logging service
+  final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
 
   void _showLottieLoadingDialog() {
     Get.dialog(
@@ -31,7 +29,7 @@ var isLoading = false.obs;
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
+              SizedBox(
                 width: 120,
                 height: 120,
                 child: Lottie.network(
@@ -41,7 +39,9 @@ var isLoading = false.obs;
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
                     return const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0E3A34)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF0E3A34),
+                      ),
                     );
                   },
                 ),
@@ -58,10 +58,7 @@ var isLoading = false.obs;
               const SizedBox(height: 8),
               const Text(
                 'Mohon tunggu sebentar',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
@@ -73,18 +70,13 @@ var isLoading = false.obs;
 
   Future<void> login() async {
     final email = emailController.text.trim();
-    // final password = passwordController.text.trim();
-
-    // print('Login attempt with email: $email and password: $password');
-
     if (email.isEmpty) {
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(content: Text("Email tidak boleh kosong")),
-      );
+      ScaffoldMessenger.of(
+        Get.context!,
+      ).showSnackBar(SnackBar(content: Text("Email tidak boleh kosong")));
       return;
     }
 
-    // Show Lottie loading dialog
     _showLottieLoadingDialog();
 
     try {
@@ -100,19 +92,29 @@ var isLoading = false.obs;
         headers: headers,
         body: body,
       );
-      
-      // Close loading dialog
+
       Get.back();
-      
+
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
 
         ScaffoldMessenger.of(
           Get.context!,
-        ).showSnackBar(SnackBar(content: Text("${data['message']}, $email")));
-        // Arahkan ke halaman verifikasi OTP
+        ).showSnackBar(SnackBar(content: Text("${data['message']}")));
+     
         Get.toNamed(Routes.VERIFY_OTP, arguments: {'email': email});
       } else {
+        // Log authentication error using ErrorLoggingService
+        await _errorLoggingService.logAuthError(
+          errorMessage: 'Login failed with status ${response.statusCode}',
+          feature: 'login',
+          additionalData: {
+            'email': email,
+            'statusCode': response.statusCode,
+            'responseBody': response.body,
+          },
+        );
+        
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(content: Text("Login gagal, silakan coba lagi")),
         );
@@ -120,9 +122,21 @@ var isLoading = false.obs;
     } catch (e) {
       // Close loading dialog
       Get.back();
+
+      // Determine error type and log using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+      final userFriendlyMessage = _errorLoggingService.getUserFriendlyMessage(errorType);
       
+      await _errorLoggingService.logError(
+        errorType: errorType,
+        errorMessage: e.toString(),
+        feature: 'login',
+        additionalData: {'email': email},
+        stackTrace: StackTrace.current.toString(),
+      );
+
       ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan, silakan coba lagi")),
+        SnackBar(content: Text(userFriendlyMessage)),
       );
       print('Error during login: $e');
       return;
@@ -136,3 +150,4 @@ var isLoading = false.obs;
     super.onClose();
   }
 }
+

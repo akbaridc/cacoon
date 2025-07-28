@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "290455972601",
+    "project_id": "cacoon-eea17",
+    "storage_bucket": "cacoon-eea17.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:290455972601:android:1b01448c515fa9bf951028",
+        "android_client_info": {
+          "package_name": "com.cacoonpetrokimia.cacoon_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE_xdRwao39DxC_JsAG4Bd50dx1Fb5fmk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

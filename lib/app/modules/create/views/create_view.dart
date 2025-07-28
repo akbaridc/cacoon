@@ -42,7 +42,7 @@ class CreateView extends GetView<CreateController> {
         padding: const EdgeInsets.all(16),
         child: RefreshIndicator(
           onRefresh: () async {
-            await controller.doRefresh();
+            controller.doRefresh();
           },
           child: SingleChildScrollView(
             child: Column(

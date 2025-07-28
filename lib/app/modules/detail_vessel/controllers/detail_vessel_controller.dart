@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cacoon_mobile/app/data/boat_model.dart';
 import 'package:cacoon_mobile/app/data/task_detail.dart';
+import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:get/get.dart';
@@ -9,7 +10,10 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class DetailVesselController extends GetxController {
- final selectedMonth = DateTime.now().month.obs;
+  // Error logging service
+  final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
+  
+  final selectedMonth = DateTime.now().month.obs;
   final selectedYear = DateTime.now().year.obs;
   final selectedDate = Rxn<DateTime>();
   final dates = <DateTime>[].obs;
@@ -82,10 +86,42 @@ class DetailVesselController extends GetxController {
         Get.offAllNamed('/login');
       } else {
         isLoading.value = false;
+        
+        // Log server error
+        await _errorLoggingService.logError(
+          errorType: ErrorLoggingService.SERVER_ERROR,
+          errorMessage: 'Failed to fetch vessel detail with status ${response.statusCode}',
+          feature: 'detail_vessel_fetch',
+          additionalData: {
+            'statusCode': response.statusCode,
+            'boatId': boat.vslId,
+            'selectedDate': DateFormat('yyyy-MM-dd').format(selectedDate.value!),
+            'responseBody': response.body,
+          },
+          statusCode: response.statusCode,
+        );
+        
         print("Failed to fetch data. Status code: ${response.statusCode}");
       }
     } catch (e) {
       isLoading.value = false;
+      
+      // Determine error type and log using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+      
+      await _errorLoggingService.logError(
+        errorType: errorType,
+        errorMessage: e.toString(),
+        feature: 'detail_vessel_fetch',
+        additionalData: {
+          'boatId': boat.vslId,
+          'selectedDate': selectedDate.value != null 
+            ? DateFormat('yyyy-MM-dd').format(selectedDate.value!)
+            : 'null',
+        },
+        stackTrace: StackTrace.current.toString(),
+      );
+      
       print('Error during fetchData: $e');
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cacoon_mobile/app/data/vessel_post_model.dart';
+import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class HomeController extends GetxController {
+  // Error logging service
+  final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
+  
   final stories = [
     {'name': 'Your Story', 'profileImage': 'https://placehold.co/100x100'},
     {'name': 'Ethan', 'profileImage': 'https://placehold.co/100x100'},
@@ -67,6 +71,9 @@ Future<void> fetchData({int page = 1}) async {
 
     var response = await http.get(Uri.parse(url), headers: headers);
 
+    print("Fetching data from: $url");
+    print("Response status: ${response.body}");
+
     if (response.statusCode == 200) {
       final jsonResult = json.decode(response.body);
 
@@ -96,9 +103,33 @@ Future<void> fetchData({int page = 1}) async {
       SessionHelper.clearSession();
       Get.offAllNamed('/login');
     } else {
+      // Log server error
+      await _errorLoggingService.logError(
+        errorType: ErrorLoggingService.SERVER_ERROR,
+        errorMessage: 'Failed to fetch vessel data with status ${response.statusCode}',
+        feature: 'home_data_fetch',
+        additionalData: {
+          'statusCode': response.statusCode,
+          'page': page,
+          'responseBody': response.body,
+        },
+        statusCode: response.statusCode,
+      );
+      
       print("Failed to fetch data. Status code: ${response.statusCode}");
     }
   } catch (e) {
+    // Determine error type and log using ErrorLoggingService
+    final errorType = _errorLoggingService.determineErrorType(e);
+    
+    await _errorLoggingService.logError(
+      errorType: errorType,
+      errorMessage: e.toString(),
+      feature: 'home_data_fetch',
+      additionalData: {'page': page},
+      stackTrace: StackTrace.current.toString(),
+    );
+    
     print('Error during fetchData: $e');
   } finally {
     if (page == 1) {

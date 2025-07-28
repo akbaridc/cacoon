@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cacoon_mobile/app/data/boat_model.dart';
+import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,10 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 class TaskController extends GetxController {
- var boats = <Boat>[].obs;
+  // Error logging service
+  final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
+  
+  var boats = <Boat>[].obs;
   var currentPage = 1;
   var lastPage = 1;
   var isLoadingMore = false.obs;
@@ -71,9 +75,37 @@ class TaskController extends GetxController {
         boats.addAll(fetchedBoats);
       }
     } else {
+      // Log server error
+      await _errorLoggingService.logError(
+        errorType: ErrorLoggingService.SERVER_ERROR,
+        errorMessage: 'Failed to load task boat data with status ${response.statusCode}',
+        feature: 'task_boat_fetch',
+        additionalData: {
+          'statusCode': response.statusCode,
+          'page': page,
+          'searchQuery': searchQuery.value,
+          'responseBody': response.body,
+        },
+        statusCode: response.statusCode,
+      );
+      
       print("Failed to load data: ${response.statusCode}");
     }
   } catch (e) {
+    // Determine error type and log using ErrorLoggingService
+    final errorType = _errorLoggingService.determineErrorType(e);
+    
+    await _errorLoggingService.logError(
+      errorType: errorType,
+      errorMessage: e.toString(),
+      feature: 'task_boat_fetch',
+      additionalData: {
+        'page': page,
+        'searchQuery': searchQuery.value,
+      },
+      stackTrace: StackTrace.current.toString(),
+    );
+    
     print('Error: $e');
   }
 }

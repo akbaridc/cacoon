@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cacoon_mobile/app/data/boat_model.dart';
 import 'package:cacoon_mobile/app/data/palka_model.dart';
 import 'package:cacoon_mobile/app/data/shift_model.dart';
+import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
 import 'package:cacoon_mobile/constants/lottie_assets.dart';
 import 'package:cacoon_mobile/helpers/session_helper.dart';
@@ -51,23 +52,40 @@ class CreateController extends GetxController {
   var isSubmitting = false.obs;
   var showPreviewDialog = false.obs;
 
+  // Error logging service
+  final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
+
   Future<void> pickSelfieImage() async {
     await _determinePosition();
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.camera,
-      imageQuality: 80, // Maximum quality (0-100, 100 = max quality)
+      imageQuality: 40, // Maximum quality (0-100, 100 = max quality)
       preferredCameraDevice: CameraDevice.front, // Front camera for selfie
-      maxWidth: 4000, // High resolution
-      maxHeight: 3000, // High resolution
+      maxWidth: 800, // Optional: limit width to reduce size
+      maxHeight: 800, // Optional: limit height to reduce size
     );
 
     if (pickedFile != null) {
-      // For selfie, use original image without watermark
-      selfieImageFile.value = File(pickedFile.path);
+      // Show loading dialog while processing watermark with Lottie
+      _showLottieLoadingDialog(
+        lottieUrl: LottieAssets.processingAlt,
+        title: 'Memproses foto selfie...',
+        subtitle: 'Menambahkan watermark',
+        width: 80,
+        height: 80,
+      );
+      
+      // Process selfie image with watermark
+      final processedImageFile = await _addWatermarkToImage(File(pickedFile.path));
+      
+      // Close loading dialog
+      Get.back();
+      
+      selfieImageFile.value = processedImageFile;
       
       // Show preview dialog after processing
-      // _showWatermarkPreview(File(pickedFile.path), isSelfie: true);
+      _showWatermarkPreview(processedImageFile, isSelfie: true);
     }
   }
 
@@ -168,7 +186,7 @@ class CreateController extends GetxController {
     }
   }
 
-  Future<void> doRefresh() async {
+  void doRefresh() async {
     await fetchPalka();
     await fetchShift();
   }
@@ -368,6 +386,20 @@ class CreateController extends GetxController {
 
       print("Sending request to server...");
       
+      // Prepare request data for potential error logging
+      final requestDataForLogging = {
+        'vessel_code': selectedBoat.value,
+        'palka': selectedPalkaId.value.isNotEmpty ? selectedPalkaId.value : selectedPalka.value,
+        'date': DateFormat('yyyy-MM-dd').format(dateTime.value),
+        'time': DateFormat('HH:mm:ss').format(dateTime.value),
+        'lat': latitude.value.toString(),
+        'long': longitude.value.toString(),
+        'shift': selectedShift.value == 'Shift 1' ? '1' : selectedShift.value == 'Shift 2' ? '2' : '3',
+        'note': noteTextController.text,
+        'hasMainPhoto': imageFile.value != null,
+        'hasSelfiePhoto': selfieImageFile.value != null,
+      };
+      
       // Send request with timeout
       final streamedResponse = await request.send().timeout(
         const Duration(seconds: 60), // 60 seconds timeout
@@ -394,6 +426,14 @@ class CreateController extends GetxController {
         Get.back(); // Close the create view
         print('Upload sukses: ${response.body}');
       } else {
+        // Log server error using ErrorLoggingService
+        await _errorLoggingService.logUploadError(
+          errorMessage: 'Server responded with status ${response.statusCode}',
+          requestData: requestDataForLogging,
+          responseBody: response.body,
+          statusCode: response.statusCode,
+        );
+        
         Get.snackbar(
           'Error',
           'Gagal mengirim data: ${response.statusCode}',
@@ -409,16 +449,36 @@ class CreateController extends GetxController {
         Get.back();
       }
       
-      String errorMessage = 'Terjadi kesalahan: $e';
-      if (e.toString().contains('timeout')) {
-        errorMessage = 'Upload timeout - periksa koneksi internet Anda';
-      } else if (e.toString().contains('SocketException')) {
-        errorMessage = 'Tidak dapat terhubung ke server - periksa koneksi internet';
-      }
+      // Prepare request data for error logging
+      final requestDataForLogging = {
+        'vessel_code': selectedBoat.value,
+        'palka': selectedPalkaId.value.isNotEmpty ? selectedPalkaId.value : selectedPalka.value,
+        'date': DateFormat('yyyy-MM-dd').format(dateTime.value),
+        'time': DateFormat('HH:mm:ss').format(dateTime.value),
+        'lat': latitude.value.toString(),
+        'long': longitude.value.toString(),
+        'shift': selectedShift.value == 'Shift 1' ? '1' : selectedShift.value == 'Shift 2' ? '2' : '3',
+        'note': noteTextController.text,
+        'hasMainPhoto': imageFile.value != null,
+        'hasSelfiePhoto': selfieImageFile.value != null,
+      };
+      
+      // Determine error type using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+      final userFriendlyMessage = _errorLoggingService.getUserFriendlyMessage(errorType);
+      
+      // Log error using ErrorLoggingService
+      await _errorLoggingService.logError(
+        errorType: errorType,
+        errorMessage: e.toString(),
+        requestData: requestDataForLogging,
+        feature: 'upload',
+        stackTrace: StackTrace.current.toString(),
+      );
       
       Get.snackbar(
         'Error',
-        errorMessage,
+        userFriendlyMessage,
         backgroundColor: Colors.red,
         colorText: Colors.white,
         duration: const Duration(seconds: 5),
@@ -492,10 +552,10 @@ class CreateController extends GetxController {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(
       source: ImageSource.camera,
-      imageQuality: 80, // Maximum quality (0-100, 100 = max quality)
+      imageQuality: 40, // Maximum quality (0-100, 100 = max quality)
       preferredCameraDevice: CameraDevice.rear, // Back camera for main photo
-      maxWidth: 4000, // High resolution
-      maxHeight: 3000, // High resolution
+      maxWidth: 800, // Optional: limit width to reduce size
+      maxHeight: 800, // Optional: limit height to reduce size
     );
 
     if (pickedFile != null) {
@@ -691,6 +751,12 @@ class CreateController extends GetxController {
   }
 
   void _showWatermarkPreview(File watermarkedFile, {bool isSelfie = false}) {
+    // Prevent opening dialog if another is already open
+    if (Get.isDialogOpen == true || showPreviewDialog.value) {
+      print('Dialog already open, skipping preview');
+      return;
+    }
+    
     showPreviewDialog.value = true;
     
     // Check if file exists and has watermark
@@ -712,7 +778,7 @@ class CreateController extends GetxController {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isSelfie ? Colors.blue : (hasWatermark ? Colors.green : Colors.orange),
+                  color: hasWatermark ? Colors.green : Colors.orange,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: Row(
@@ -735,7 +801,9 @@ class CreateController extends GetxController {
                     IconButton(
                       onPressed: () {
                         showPreviewDialog.value = false;
-                        Get.back();
+                        if (Get.isDialogOpen == true) {
+                          Get.back();
+                        }
                       },
                       icon: const Icon(Icons.close, color: Colors.white),
                     ),
@@ -756,39 +824,27 @@ class CreateController extends GetxController {
                         padding: const EdgeInsets.all(8),
                         margin: const EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
-                          color: isSelfie 
-                            ? Colors.blue.withOpacity(0.1) 
-                            : (hasWatermark ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1)),
+                          color: hasWatermark ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelfie 
-                              ? Colors.blue 
-                              : (hasWatermark ? Colors.green : Colors.orange),
+                            color: hasWatermark ? Colors.green : Colors.orange,
                             width: 1,
                           ),
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              isSelfie 
-                                ? Icons.person 
-                                : (hasWatermark ? Icons.check_circle : Icons.warning),
-                              color: isSelfie 
-                                ? Colors.blue 
-                                : (hasWatermark ? Colors.green : Colors.orange),
+                              hasWatermark ? Icons.check_circle : Icons.warning,
+                              color: hasWatermark ? Colors.green : Colors.orange,
                               size: 16,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              isSelfie 
-                                ? 'Foto selfie (tanpa watermark)'
-                                : (hasWatermark 
-                                  ? 'Watermark berhasil ditambahkan' 
-                                  : 'Watermark tidak terdeteksi'),
+                              hasWatermark 
+                                ? 'Watermark berhasil ditambahkan' 
+                                : 'Watermark tidak terdeteksi',
                               style: TextStyle(
-                                color: isSelfie 
-                                  ? Colors.blue 
-                                  : (hasWatermark ? Colors.green : Colors.orange),
+                                color: hasWatermark ? Colors.green : Colors.orange,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -869,27 +925,19 @@ class CreateController extends GetxController {
                     Row(
                       children: [
                         Icon(
-                          isSelfie 
-                            ? Icons.check_circle 
-                            : (hasWatermark ? Icons.check_circle : Icons.info), 
-                          color: isSelfie 
-                            ? Colors.blue 
-                            : (hasWatermark ? Colors.green : Colors.blue), 
+                          hasWatermark ? Icons.check_circle : Icons.info,
+                          color: hasWatermark ? Colors.green : Colors.blue,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isSelfie 
-                            ? 'Foto selfie berhasil diambil!'
-                            : (hasWatermark 
-                              ? 'Watermark berhasil ditambahkan!'
-                              : 'Foto diproses tanpa watermark'),
+                          hasWatermark 
+                            ? 'Watermark berhasil ditambahkan!'
+                            : 'Foto diproses tanpa watermark',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: isSelfie 
-                              ? Colors.blue 
-                              : (hasWatermark ? Colors.green : Colors.blue),
+                            color: hasWatermark ? Colors.green : Colors.blue,
                           ),
                         ),
                       ],
@@ -920,11 +968,15 @@ class CreateController extends GetxController {
                             _buildInfoRow('📍 Lokasi', 'Lat: ${latitude.value}, Long: ${longitude.value}'),
                             const SizedBox(height: 4),
                           ],
+                          if (isSelfie) ...[
+                            _buildInfoRow('📍 Lokasi', 'Lat: ${latitude.value}, Long: ${longitude.value}'),
+                            const SizedBox(height: 4),
+                          ],
                           _buildInfoRow('⏰ Waktu', DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now())),
                           const SizedBox(height: 4),
                           _buildInfoRow('📸 Jenis', isSelfie ? 'Foto Selfie' : 'Foto Kapal'),
                           const SizedBox(height: 4),
-                          _buildInfoRow('🏷️ Status', isSelfie ? 'Tanpa Watermark' : (hasWatermark ? 'Dengan Watermark' : 'Tanpa Watermark')),
+                          _buildInfoRow('🏷️ Status', hasWatermark ? 'Dengan Watermark' : 'Tanpa Watermark'),
                         ],
                       ),
                     ),
@@ -938,13 +990,18 @@ class CreateController extends GetxController {
                           child: ElevatedButton(
                             onPressed: () {
                               showPreviewDialog.value = false;
-                              Get.back();
-                              // Retake photo
-                              if (isSelfie) {
-                                pickSelfieImage();
-                              } else {
-                                pickImage();
+                              if (Get.isDialogOpen == true) {
+                                Get.back();
                               }
+                              
+                              // Add delay to ensure dialog is closed before retaking photo
+                              Future.delayed(const Duration(milliseconds: 300), () {
+                                if (isSelfie) {
+                                  pickSelfieImage();
+                                } else {
+                                  pickImage();
+                                }
+                              });
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange,
@@ -961,15 +1018,22 @@ class CreateController extends GetxController {
                           child: ElevatedButton(
                             onPressed: () {
                               showPreviewDialog.value = false;
-                              Get.back();
-                              Get.snackbar(
-                                'Sukses', 
-                                isSelfie 
-                                  ? 'Foto selfie berhasil diambil (tanpa watermark)'
-                                  : 'Foto berhasil diambil dan diproses',
-                                backgroundColor: Colors.green,
-                                colorText: Colors.white,
-                              );
+                              if (Get.isDialogOpen == true) {
+                                Get.back();
+                              }
+                              
+                              // Add delay to ensure dialog is closed
+                              Future.delayed(const Duration(milliseconds: 300), () {
+                                Get.snackbar(
+                                  'Sukses', 
+                                  isSelfie 
+                                    ? 'Foto selfie berhasil diambil dengan watermark'
+                                    : 'Foto berhasil diambil dan diproses',
+                                  backgroundColor: Colors.green,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 2),
+                                );
+                              });
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
