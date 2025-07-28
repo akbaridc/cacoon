@@ -15,5 +15,6 @@ class ApiEndpoint {
   static const shift = '$prefix/shift';
 
   static const postVessel = '$prefix/post';
+  static const storyVessel = '$prefix/story';
 
 }

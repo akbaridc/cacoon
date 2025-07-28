@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cacoon_mobile/app/data/story_model.dart';
 import 'package:cacoon_mobile/app/data/vessel_post_model.dart';
 import 'package:cacoon_mobile/app/services/error_logging_service.dart';
 import 'package:cacoon_mobile/constants/api_endpoint.dart';
@@ -10,19 +11,59 @@ import 'package:http/http.dart' as http;
 class HomeController extends GetxController {
   // Error logging service
   final ErrorLoggingService _errorLoggingService = ErrorLoggingService();
-  
-  final stories = [
-    {'name': 'Your Story', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Ethan', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Olivia', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Noah', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Emma', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Liam', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Sophia', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Mason', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Ava', 'profileImage': 'https://placehold.co/100x100'},
-    {'name': 'Lucas', 'profileImage': 'https://placehold.co/100x100'},
-  ];
+
+  // final stories = [
+  //   {
+  //     'name': 'Your Story',
+  //     'profileImage': 'https://placehold.co/100x100',
+  //     'stories': [
+  //       'https://placehold.co/400x600/FFDDDD',
+  //       'https://placehold.co/400x600/DDFFDD',
+  //     ],
+  //   },
+  //   {
+  //     'name': 'Ethan',
+  //     'profileImage': 'https://placehold.co/100x100',
+  //     'stories': [
+  //       'https://placehold.co/400x600/FFDDDD',
+  //       'https://placehold.co/400x600/DDFFDD',
+  //     ],
+  //   },
+  //   {
+  //     'name': 'Olivia',
+  //     'profileImage': 'https://placehold.co/100x100',
+  //     'stories': [
+  //       'https://placehold.co/400x600/FFDDDD',
+  //       'https://placehold.co/400x600/DDFFDD',
+  //     ],
+  //   },
+  //   {
+  //     'name': 'Noah',
+  //     'profileImage': 'https://placehold.co/100x100',
+  //     'stories': [
+  //       'https://placehold.co/400x600/FFDDDD',
+  //       'https://placehold.co/400x600/DDFFDD',
+  //     ],
+  //   },
+  //   {
+  //     'name': 'Isabella',
+  //     'profileImage': 'https://placehold.co/100x100',
+  //     'stories': [
+  //       'https://placehold.co/400x600/FFDDDD',
+  //       'https://placehold.co/400x600/DDFFDD',
+  //     ],
+  //   },
+  //   {
+  //     'name': 'Liam',
+  //     'profileImage': 'https://placehold.co/100x100',
+  //     'stories': [
+  //       'https://placehold.co/400x600/FFDDDD',
+  //       'https://placehold.co/400x600/DDFFDD',
+  //     ],
+  //   },
+  // ];
+
+  var stories = <StoryPost>[].obs;
 
   var vesselPostData = <VesselPost>[].obs;
   var currentPage = 1;
@@ -30,11 +71,14 @@ class HomeController extends GetxController {
   var isLoading = true.obs;
   var isLoadingMore = false.obs;
 
+  
+
   final scrollController = ScrollController();
 
   @override
   void onInit() {
     super.onInit();
+    fetchStory();
     fetchData();
     print("Fetching data for the first time");
     scrollController.addListener(_scrollListener);
@@ -43,100 +87,179 @@ class HomeController extends GetxController {
   Future<void> refreshBoat() async {
     currentPage = 1;
     vesselPostData.clear();
+    stories.clear();
+    await fetchStory();
     await fetchData();
   }
 
   void _scrollListener() {
-    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent - 200) {
       if (!isLoadingMore.value && currentPage < lastPage) {
         loadMore();
       }
     }
   }
 
-Future<void> fetchData({int page = 1}) async {
-  try {
-    if (page == 1) {
-      isLoading.value = true;
-    }
-    
-    var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.postVessel}?page=$page';
-    String token = await SessionHelper.getAccessToken();
+   Future<void> fetchStory() async {
+    try {
+      var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.storyVessel}?limit=100';
+      String token = await SessionHelper.getAccessToken();
 
-    var headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
+      var headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
 
-    var response = await http.get(Uri.parse(url), headers: headers);
+      var response = await http.get(Uri.parse(url), headers: headers);
 
-    print("Fetching data from: $url");
-    print("Response status: ${response.body}");
+      print("Fetching data from: $url");
+      print("Response status: ${response.body}");
 
-    if (response.statusCode == 200) {
-      final jsonResult = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final jsonResult = json.decode(response.body);
+        print("Response data: $jsonResult");
 
-      // ✅ Validasi bahwa "data" adalah List
-      if (jsonResult is! Map || jsonResult['data'] is! List) {
-        return;
-      }
+        // ✅ Validasi bahwa "data" adalah List
+        if (jsonResult is! Map || jsonResult['data'] is! List) {
+          return;
+        }
 
-      // ✅ Ambil pagination dari "meta"
-      final meta = jsonResult['meta'];
-      currentPage = meta['page'] ?? 1;
-      lastPage = meta['last_page'] ?? 1;
+        // ✅ Ambil pagination dari "meta"
+        final meta = jsonResult['meta'];
+        currentPage = meta['page'] ?? 1;
+        lastPage = meta['last_page'] ?? 1;
 
-      final List<dynamic> dataList = jsonResult['data'];
+        final List<dynamic> dataList = jsonResult['data'];
 
-      List<VesselPost> fetchVesselPost = dataList
-          .map<VesselPost>((item) => VesselPost.fromJson(item))
-          .toList();
+        List<StoryPost> fetchStoryVessel = dataList
+            .map<StoryPost>((item) => StoryPost.fromJson(item))
+            .toList();
 
-      if (page == 1) {
-        vesselPostData.value = fetchVesselPost;
+          stories.addAll(fetchStoryVessel);
+  
+      } else if (response.statusCode == 401) {
+        Get.snackbar('Unauthorized', 'Please login again');
+        SessionHelper.clearSession();
+        Get.offAllNamed('/login');
       } else {
-        vesselPostData.addAll(fetchVesselPost);
+        // Log server error
+        await _errorLoggingService.logError(
+          errorType: ErrorLoggingService.SERVER_ERROR,
+          errorMessage:
+              'Failed to fetch vessel data with status ${response.statusCode}',
+          feature: 'home_data_fetch',
+          additionalData: {
+            'statusCode': response.statusCode,
+            'responseBody': response.body,
+          },
+          statusCode: response.statusCode,
+        );
+
+        print("Failed to fetch data. Status code: ${response.statusCode}");
       }
-    } else if (response.statusCode == 401) {
-      Get.snackbar('Unauthorized', 'Please login again');
-      SessionHelper.clearSession();
-      Get.offAllNamed('/login');
-    } else {
-      // Log server error
+    } catch (e) {
+      // Determine error type and log using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+
       await _errorLoggingService.logError(
-        errorType: ErrorLoggingService.SERVER_ERROR,
-        errorMessage: 'Failed to fetch vessel data with status ${response.statusCode}',
+        errorType: errorType,
+        errorMessage: e.toString(),
         feature: 'home_data_fetch',
-        additionalData: {
-          'statusCode': response.statusCode,
-          'page': page,
-          'responseBody': response.body,
-        },
-        statusCode: response.statusCode,
+        stackTrace: StackTrace.current.toString(),
       );
+
+      print('Error during fetchData: $e');
+    } finally {
       
-      print("Failed to fetch data. Status code: ${response.statusCode}");
-    }
-  } catch (e) {
-    // Determine error type and log using ErrorLoggingService
-    final errorType = _errorLoggingService.determineErrorType(e);
-    
-    await _errorLoggingService.logError(
-      errorType: errorType,
-      errorMessage: e.toString(),
-      feature: 'home_data_fetch',
-      additionalData: {'page': page},
-      stackTrace: StackTrace.current.toString(),
-    );
-    
-    print('Error during fetchData: $e');
-  } finally {
-    if (page == 1) {
-      isLoading.value = false;
     }
   }
-}
+
+  Future<void> fetchData({int page = 1}) async {
+    try {
+      if (page == 1) {
+        isLoading.value = true;
+      }
+
+      var url = '${ApiEndpoint.baseUrl}${ApiEndpoint.postVessel}?page=$page';
+      String token = await SessionHelper.getAccessToken();
+
+      var headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      var response = await http.get(Uri.parse(url), headers: headers);
+
+      print("Fetching data from: $url");
+      print("Response status: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final jsonResult = json.decode(response.body);
+
+        // ✅ Validasi bahwa "data" adalah List
+        if (jsonResult is! Map || jsonResult['data'] is! List) {
+          return;
+        }
+
+        // ✅ Ambil pagination dari "meta"
+        final meta = jsonResult['meta'];
+        currentPage = meta['page'] ?? 1;
+        lastPage = meta['last_page'] ?? 1;
+
+        final List<dynamic> dataList = jsonResult['data'];
+
+        List<VesselPost> fetchVesselPost = dataList
+            .map<VesselPost>((item) => VesselPost.fromJson(item))
+            .toList();
+
+        if (page == 1) {
+          vesselPostData.value = fetchVesselPost;
+        } else {
+          vesselPostData.addAll(fetchVesselPost);
+        }
+      } else if (response.statusCode == 401) {
+        Get.snackbar('Unauthorized', 'Please login again');
+        SessionHelper.clearSession();
+        Get.offAllNamed('/login');
+      } else {
+        // Log server error
+        await _errorLoggingService.logError(
+          errorType: ErrorLoggingService.SERVER_ERROR,
+          errorMessage:
+              'Failed to fetch vessel data with status ${response.statusCode}',
+          feature: 'home_data_fetch',
+          additionalData: {
+            'statusCode': response.statusCode,
+            'page': page,
+            'responseBody': response.body,
+          },
+          statusCode: response.statusCode,
+        );
+
+        print("Failed to fetch data. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      // Determine error type and log using ErrorLoggingService
+      final errorType = _errorLoggingService.determineErrorType(e);
+
+      await _errorLoggingService.logError(
+        errorType: errorType,
+        errorMessage: e.toString(),
+        feature: 'home_data_fetch',
+        additionalData: {'page': page},
+        stackTrace: StackTrace.current.toString(),
+      );
+
+      print('Error during fetchData: $e');
+    } finally {
+      if (page == 1) {
+        isLoading.value = false;
+      }
+    }
+  }
 
   Future<void> loadMore() async {
     if (currentPage < lastPage) {

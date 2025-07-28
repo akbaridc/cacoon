@@ -18,6 +18,8 @@ import '../modules/search_boat/bindings/search_boat_binding.dart';
 import '../modules/search_boat/views/search_boat_view.dart';
 import '../modules/splash_page/bindings/splash_page_binding.dart';
 import '../modules/splash_page/views/splash_page_view.dart';
+import '../modules/story_viewer/bindings/story_viewer_binding.dart';
+import '../modules/story_viewer/views/story_viewer_view.dart';
 import '../modules/task/bindings/task_binding.dart';
 import '../modules/task/views/task_view.dart';
 import '../modules/verify_otp/bindings/verify_otp_binding.dart';
@@ -86,5 +88,10 @@ class AppPages {
       page: () => const DetailVesselView(),
       binding: DetailVesselBinding(),
     ),
+    // GetPage(
+    //   name: _Paths.STORY_VIEWER,
+    //   page: () =>  StoryViewerView(),
+    //   binding: StoryViewerBinding(),
+    // ),
   ];
 }

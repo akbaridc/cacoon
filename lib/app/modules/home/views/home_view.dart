@@ -1,4 +1,5 @@
 import 'package:cacoon_mobile/app/data/vessel_post_model.dart';
+import 'package:cacoon_mobile/app/modules/story_viewer/views/story_viewer_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
@@ -162,11 +163,12 @@ class HomeView extends GetView<HomeController> {
           onRefresh: controller.refreshBoat,
           child: ListView.builder(
             controller: controller.scrollController,
-            itemCount: controller.vesselPostData.length + 2, // +2 for stories and loading indicator
+            itemCount: controller.vesselPostData.length + 3, // +3 for stories, divider, and loading indicator
             itemBuilder: (context, index) {
               if (index == 0) return _buildStories();
-              if (index <= controller.vesselPostData.length) {
-                final post = controller.vesselPostData[index - 1];
+              if (index == 1) return _buildDivider(); // Garis pemisah
+              if (index <= controller.vesselPostData.length + 1) {
+                final post = controller.vesselPostData[index - 2]; // -2 karena ada stories dan divider
                 return _buildPostItem(post);
               }
               // Loading indicator at the end
@@ -183,6 +185,14 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  Widget _buildDivider() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      height: 1,
+      color: Colors.grey.shade300,
+    );
+  }
+
   Widget _buildStories() {
     return SizedBox(
       height: 100,
@@ -193,32 +203,78 @@ class HomeView extends GetView<HomeController> {
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final story = controller.stories[index];
-          return Column(
-            children: [
-              FutureBuilder<ImageProvider>(
-                future: _loadImage(story['profileImage'] ?? ''),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircleAvatar(
-                      radius: 30,
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError || snapshot.data == null) {
-                    return const CircleAvatar(
-                      radius: 30,
-                      child: Icon(Icons.person, size: 30),
-                    );
-                  } else {
-                    return CircleAvatar(
-                      radius: 30,
-                      backgroundImage: snapshot.data!,
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 4),
-              Text(story['name'] ?? "", style: const TextStyle(fontSize: 12)),
-            ],
+          return GestureDetector(
+            onTap: (){
+              // Handle story tap
+              final story = controller.stories[index];
+              final stories = story.stories.map((s) => s.post).toList();
+
+              if (stories.isNotEmpty) {
+                  Get.to(() => StoryViewerView(
+                    storyUrls: stories,
+                    userName: story.username,
+                    profileImage: (story.avatar ?? '').toString(),
+                    onStoryCompleted: () {
+                      // Auto scroll ke user berikutnya
+                      final currentIndex = controller.stories.indexOf(story);
+                      if (currentIndex < controller.stories.length - 1) {
+                        final nextStory = controller.stories[currentIndex + 1];
+                        final nextStories = nextStory.stories.map((s) => s.post).toList();
+                        if (nextStories.isNotEmpty) {
+                          Get.off(() => StoryViewerView(
+                            storyUrls: nextStories,
+                            userName: nextStory.username,
+                            profileImage: (nextStory.avatar ?? '').toString(),
+                            onStoryCompleted: () {
+                              Get.back();
+                            },
+                          ));
+                        } else {
+                          Get.back();
+                        }
+                      } else {
+                        Get.back(); // Kembali jika sudah story terakhir
+                      }
+                    },
+                  ));
+              }
+            },
+            child: Column(
+              children: [
+                FutureBuilder<ImageProvider>(
+                  future: _loadImage(story.avatar?.toString() ?? ''),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircleAvatar(
+                        radius: 30,
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError || snapshot.data == null) {
+                      return const CircleAvatar(
+                        radius: 30,
+                        child: Icon(Icons.person, size: 30),
+                      );
+                    } else {
+                      return CircleAvatar(
+                        radius: 30,
+                        backgroundImage: snapshot.data!,
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  width: 60, // Batas lebar untuk username
+                  child: Text(
+                    story.username, 
+                    style: const TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

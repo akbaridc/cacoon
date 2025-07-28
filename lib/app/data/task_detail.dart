@@ -19,7 +19,7 @@ class TaskDetail {
     String vpLongitude;
     String? vpLocationName;
     String vpShift;
-    String vpNote;
+    String? vpNote;
     DateTime createdAt;
     DateTime updatedAt;
     String vpPhotoVessel;
