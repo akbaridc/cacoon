@@ -25,6 +25,7 @@ Route::post('/verify-token', [AuthController::class, 'verifyToken']);
 // Protected routes
 Route::middleware('auth.api')->group(function () {
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/logout', [AuthController::class, 'logout']);
 

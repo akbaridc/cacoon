@@ -77,8 +77,8 @@ class VesselPostController extends Controller
             'lat' => 'required',
             'long' => 'required',
             'shift' => 'required|in:1,2,3',
-            'photo_vessel' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'photo_selfie' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+            'photo_vessel' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:3048',
+            'photo_selfie' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:3048',
             'note' => 'nullable|string'
         ]);
 

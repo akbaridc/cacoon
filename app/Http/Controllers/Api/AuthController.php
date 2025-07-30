@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Mail\SendLoginTokenMail;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Mail\SendLoginTokenMail;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -157,6 +158,34 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!password_verify($request->current_password, $user->password)) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'Current password is incorrect',
+            ], 403);
+        }
+
+        // Update password
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        logActivity('Mobile API', "{$user->name} change password", [], $user->id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password changed successfully',
         ]);
     }
 

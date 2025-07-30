@@ -75,6 +75,36 @@
                     }
                 },
                 {
+                    "name": "Change Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"current_password\": \"password\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{dev}}/api/change-password",
+                            "host": ["{{dev}}"],
+                            "path": ["api", "change-password"]
+                        },
+                        "description": "Request Change Password"
+                    }
+                },
+                {
                     "name": "Logout",
                     "request": {
                         "method": "GET",

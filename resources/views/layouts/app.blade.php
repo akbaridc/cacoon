@@ -11,7 +11,7 @@
     <meta content="" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <link rel="shortcut icon" href="{{ asset('templates/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo.ico') }}">
 
     <link href="{{ asset('templates/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }} " rel="stylesheet" type="text/css" />
     <link href="{{ asset('templates/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }} " rel="stylesheet" type="text/css" />
@@ -36,13 +36,12 @@
     </div>
     <div class="startbar d-print-none">
         <div class="brand">
-            <a href="index.html" class="logo">
+            <a href="{{ route('dashboard') }}" class="logo">
                 <span>
-                    <img src="{{ asset('templates/images/logo-sm.png') }}" alt="logo-small" class="logo-sm">
+                    <img src="{{ asset('images/logo.png') }}" alt="logo-small" class="logo-sm">
                 </span>
                 <span class="">
-                    <img src="{{ asset('templates/images/logo-light.png') }}" alt="logo-large" class="logo-lg logo-light">
-                    <img src="{{ asset('templates/images/logo-dark.png') }}" alt="logo-large" class="logo-lg logo-dark">
+                    <img src="{{ asset('images/logo.png') }}" alt="logo-large" class="logo-lg logo-light">
                 </span>
             </a>
         </div>
